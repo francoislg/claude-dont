@@ -1,0 +1,36 @@
+{
+  "globalTools": {
+    "enabled": true,
+    "rules": {
+      "no-absolute-cwd-paths":  { "enabled": true, "severity": "block" },
+
+      "no-find":                { "enabled": true, "severity": "block" },
+      "no-awk":                 { "enabled": true, "severity": "block" },
+      "no-sed-i":               { "enabled": true, "severity": "block" },
+      "no-sed-n":               { "enabled": true, "severity": "block" },
+      "no-tsc-without-noemit":  { "enabled": true, "severity": "block" },
+      "no-code-file-redirect":  { "enabled": true, "severity": "block" }
+    }
+  },
+  "typescript": {
+    "enabled": true,
+    "rules": {
+      "no-as-any":              { "enabled": true, "severity": "block" },
+      "no-as-unknown":          { "enabled": true, "severity": "block" },
+      "no-as-never":            { "enabled": true, "severity": "block" },
+      "no-as-array":            { "enabled": true, "severity": "block" },
+      "no-as-function":         { "enabled": true, "severity": "block" },
+      "no-record-loose":        { "enabled": true, "severity": "block" },
+      "no-generic-any-unknown": { "enabled": true, "severity": "block" },
+      "no-await-import":        { "enabled": true, "severity": "block" },
+      "no-inline-import-type":  { "enabled": true, "severity": "block" },
+      "no-require":             { "enabled": true, "severity": "block" },
+      "no-param-any":           { "enabled": true, "severity": "block" },
+      "no-chained-as":          { "enabled": true, "severity": "block" },
+      "no-void-var":            { "enabled": true, "severity": "block" },
+      "no-paren-as":            { "enabled": true, "severity": "block" },
+      "no-reexport":            { "enabled": true, "severity": "block" },
+      "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
+    }
+  }
+}

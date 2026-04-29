@@ -1,0 +1,7 @@
+{
+  "typescript": {
+    "rules": {
+      "no-as-any": { "severity": "nudge" }
+    }
+  }
+}

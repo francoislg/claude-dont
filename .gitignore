@@ -1,0 +1,12 @@
+# Test sandboxes (created by tests/run-tests.sh)
+.test-cwd/
+.test-home/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor noise
+*.swp
+.idea/
+.vscode/

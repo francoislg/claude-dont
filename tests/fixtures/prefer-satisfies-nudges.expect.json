@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["prefer-satisfies", "satisfies"],
+  "stdoutNotContains": ["BLOCKED"]
+}

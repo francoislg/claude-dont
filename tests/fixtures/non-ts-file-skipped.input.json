@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.js",
+    "old_string": "x",
+    "new_string": "const x = data as any;"
+  }
+}
