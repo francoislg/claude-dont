@@ -107,6 +107,9 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |
 | `no-paren-as`             | `fn() as X`, `(...) as X` (except `as const`)        | block             |
 | `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
+| `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
+| `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
+| `no-void-expr`            | `void (...)` — discards promises/expressions; await or handle errors instead | block |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
 
 ## Block vs. nudge

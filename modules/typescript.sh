@@ -8,8 +8,8 @@ INPUT="$(cat)"
 TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty')"
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')"
 
-# Only TS/TSX files
-if [[ ! "$FILE_PATH" =~ \.(ts|tsx)$ ]]; then
+# Only TS/TSX/JS/JSX files
+if [[ ! "$FILE_PATH" =~ \.(ts|tsx|js|jsx)$ ]]; then
   jq -n '{violations: []}'
   exit 0
 fi
@@ -131,12 +131,26 @@ run_rule "no-paren-as"            "regex" '\)\s+as\s+[A-Z][A-Za-z0-9_]*' \
   "')' followed by 'as X' is not allowed. Casting an expression result ('JSON.parse(x) as Foo', 'fn() as Bar') lies to the compiler — there's no runtime check. Use a type guard, a schema validator (e.g., Zod), or fix the function's return type. For DOM narrowing, prefer 'instanceof' (which also handles null)." \
   'as const\b'
 
+# IIFE — `})()` indicates an immediately-invoked function expression. Almost
+# always a sign Claude is inlining setup logic that should be a named, parameterized
+# function declared elsewhere (or top-level statements).
+run_rule "no-iife"                "regex" '\}\)[[:space:]]*\(' \
+  "An IIFE ('})()') was added. Don't inline immediately-invoked function expressions — extract them into a named function with proper parameters declared elsewhere, then call that function from the call site. If the logic doesn't need to be reusable, just inline the statements at the top level instead."
+
 # `re-export` / `re export` comments — almost always a smell. Claude tends to
 # add a re-export shim ("// re-export so callers don't break") instead of
 # updating the actual call sites. The export itself is fine syntax; the comment
 # next to it is the red flag.
 run_rule "no-reexport"            "regex" '^[[:space:]]*(//|/\*|\*).*[Rr]e[- ]?export' \
   "A 're-export' comment was added. Don't introduce re-export shims — they hide call-site coupling and create barrel files. Instead: update every import that referenced the old location to import directly from the new source, then delete the comment (and the shim if you added one). If the comment is describing existing behavior, remove the comment."
+
+# eslint-disable comments — almost always suppressing a real issue. Fix the
+# underlying lint violation instead of silencing the rule.
+run_rule "no-void-expr"           "regex" 'void[[:space:]]*\(' \
+  "'void (...)' is not allowed. The 'void' operator is almost always used to silently discard a promise or expression result, which hides unhandled rejections and lost return values. If you're firing-and-forgetting a promise, either 'await' it, attach explicit '.catch()' handling, or extract a named function that owns the error path. If you're suppressing an unused-expression lint, fix the underlying issue instead."
+
+run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
+  "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
 
 # prefer-satisfies — nudge for `} as X` / `] as X` on object/array literals.
 # Already-blocked patterns won't reach here when their rules are enabled.

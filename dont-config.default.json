@@ -30,6 +30,9 @@
       "no-void-var":            { "enabled": true, "severity": "block" },
       "no-paren-as":            { "enabled": true, "severity": "block" },
       "no-reexport":            { "enabled": true, "severity": "block" },
+      "no-iife":                { "enabled": true, "severity": "block" },
+      "no-eslint-disable":      { "enabled": true, "severity": "block" },
+      "no-void-expr":           { "enabled": true, "severity": "block" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
   }
