@@ -76,21 +76,25 @@ for input_path in "$FIXTURES_DIR"/*.input.json; do
     reasons+=("exit: got $actual_exit, expected $expected_exit")
   fi
 
-  for needle in $(jq -r '.stdoutContains // [] | .[]' "$expect_path"); do
+  # Strip CR (Windows Git Bash + jq can emit CRLF) so substring matches work.
+  stdout="${stdout//$'\r'/}"
+  stderr="${stderr//$'\r'/}"
+
+  for needle in $(jq -r '.stdoutContains // [] | .[]' "$expect_path" | tr -d '\r'); do
     if [[ "$stdout" != *"$needle"* ]]; then
       test_failed=1
       reasons+=("stdout missing: '$needle'")
     fi
   done
 
-  for needle in $(jq -r '.stdoutNotContains // [] | .[]' "$expect_path"); do
+  for needle in $(jq -r '.stdoutNotContains // [] | .[]' "$expect_path" | tr -d '\r'); do
     if [[ "$stdout" == *"$needle"* ]]; then
       test_failed=1
       reasons+=("stdout should not contain: '$needle'")
     fi
   done
 
-  for needle in $(jq -r '.stderrContains // [] | .[]' "$expect_path"); do
+  for needle in $(jq -r '.stderrContains // [] | .[]' "$expect_path" | tr -d '\r'); do
     if [[ "$stderr" != *"$needle"* ]]; then
       test_failed=1
       reasons+=("stderr missing: '$needle'")
