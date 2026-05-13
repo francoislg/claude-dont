@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/safe.ts",
+    "content": "// We want to avoid this entire pattern.\nconst undef = void 0;\nfunction noop(): void {}\ntype Cb = () => void;\nconst p: Promise<void> = Promise.resolve();\n"
+  }
+}

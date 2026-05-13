@@ -28,7 +28,7 @@ Guidance for Claude Code when working in this repository.
 
 5. **Never block on internal errors.** A bug in claude-dont must never prevent the user's tool call from running. Use `exit 0` on internal failure, log a clear `claude-dont:` message to stderr.
 
-6. **Tests are mandatory.** Every new rule needs at least two fixtures: one that triggers it and one similar-but-clean input that does not. Fixtures live in `tests/fixtures/` as `<name>.input.json` / `<name>.expect.json` (and optional `<name>.config.json`).
+6. **Tests are mandatory.** Every new rule needs at least two fixtures: one that triggers it and one similar-but-clean input that does not. Fixtures live in `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) as `<name>.input.json` / `<name>.expect.json` (and optional `<name>.config.json`, `<name>.files/` for staged project files). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
 
 ## Architecture
 
@@ -40,7 +40,8 @@ modules/
   typescript.sh                # rules in the `typescript` config category
 dont-config.default.json       # shipped defaults; deepest merge layer
 tests/run-tests.sh
-tests/fixtures/<name>.input.json + .expect.json (+ .config.json)
+tests/fixtures/<module>/<name>.input.json + .expect.json (+ .config.json, .files/)
+tests/fixtures/dispatcher/                 # cross-cutting config/severity tests
 .github/workflows/ci.yml
 ```
 
@@ -60,7 +61,7 @@ Modules never decide block-vs-nudge themselves — that's set per-rule in the co
 
 1. Add it to `dont-config.default.json` under the right category, with `enabled`, `severity`, `tool`.
 2. Implement the check in the matching `modules/<category>.sh`, gated on `has_rule "<name>"`.
-3. Add at least one fixture pair in `tests/fixtures/`.
+3. Add at least one fixture pair in `tests/fixtures/<category>/`.
 4. Document it in `README.md` under the rule list.
 
 ## Adding a new category

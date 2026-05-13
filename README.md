@@ -109,8 +109,16 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
 | `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
 | `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
-| `no-void-expr`            | `void (...)` — discards promises/expressions; await or handle errors instead | block |
+| `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
+
+### `sveltekit` — applies to `Edit`/`Write` on `.svelte` / `.svelte.ts` / `.svelte.js` files
+
+Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists `@sveltejs/kit` under `dependencies`, `devDependencies`, or `peerDependencies`. Plain Svelte (non-Kit) projects are skipped.
+
+| Rule                  | What it blocks                                                                                    | Default severity |
+|-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
+| `no-window-location`  | `window.location` — use the `page` object from `$app/state` (or the `$page` store from `$app/stores`) | block |
 
 ## Block vs. nudge
 
@@ -125,7 +133,7 @@ Multiple violations from a single tool call are bundled into one response.
 bash tests/run-tests.sh
 ```
 
-Each fixture in `tests/fixtures/` is a triple: `<name>.input.json` (the hook payload), optional `<name>.config.json` (project-level override staged as `<test>/.claude/dont-config.json`), and `<name>.expect.json` with assertions on exit code, stdout, and stderr.
+Each fixture lives under `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) and is a triple: `<name>.input.json` (the hook payload), optional `<name>.config.json` (project-level override staged as `<test>/.claude/dont-config.json`), and `<name>.expect.json` with assertions on exit code, stdout, and stderr. A `<name>.files/` directory, if present, is copied into the test cwd before the run (used for things like staging a `package.json` so project-detection rules trigger). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
 
 ## Contributing
 

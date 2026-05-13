@@ -35,5 +35,11 @@
       "no-void-expr":           { "enabled": true, "severity": "block" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
+  },
+  "sveltekit": {
+    "enabled": true,
+    "rules": {
+      "no-window-location":     { "enabled": true, "severity": "block" }
+    }
   }
 }

@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # Test runner. Discovers fixture pairs (.input.json + .expect.json) under
-# tests/fixtures/, pipes each input into ./dont.sh, and asserts:
+# tests/fixtures/<module>/, pipes each input into ./dont.sh, and asserts:
 #   - exit code matches .expect.json `.exitCode`
 #   - if .expect.json `.stdoutContains` is set, every string in it appears in stdout
 #   - if .expect.json `.stdoutNotContains` is set, no string in it appears in stdout
 #   - if .expect.json `.stderrContains` is set, every string appears in stderr
 #
 # Optional: each fixture may have a sibling .config.json — when present, it
-# is symlinked as <repo>/.test-cwd/.claude/dont-config.json before the run
+# is copied to <repo>/.test-cwd/.claude/dont-config.json before the run
 # (simulating a per-project override).
+#
+# Optional: each fixture may also have a sibling .files/ directory — when
+# present, its contents are copied into <repo>/.test-cwd/ before the run
+# (simulating project files like package.json that rules may check for
+# project detection).
 
 set -u
 
@@ -32,8 +37,11 @@ fail=0
 failed_names=()
 
 shopt -s nullglob
-for input_path in "$FIXTURES_DIR"/*.input.json; do
-  name="$(basename "$input_path" .input.json)"
+for input_path in "$FIXTURES_DIR"/*/*.input.json; do
+  # Name includes the module subdirectory so test output is unambiguous:
+  # e.g. "typescript/no-iife-blocked".
+  rel_path="${input_path#"$FIXTURES_DIR"/}"
+  name="${rel_path%.input.json}"
   expect_path="$FIXTURES_DIR/$name.expect.json"
   config_path="$FIXTURES_DIR/$name.config.json"
 
@@ -44,10 +52,20 @@ for input_path in "$FIXTURES_DIR"/*.input.json; do
     continue
   fi
 
+  # Reset the test cwd to a clean state for every iteration so files staged
+  # by one fixture (e.g. package.json) don't leak into the next.
+  rm -rf "$TEST_CWD"
+  mkdir -p "$TEST_CWD/.claude"
+
   # Stage optional per-project config
-  rm -f "$TEST_CWD/.claude/dont-config.json"
   if [[ -f "$config_path" ]]; then
     cp "$config_path" "$TEST_CWD/.claude/dont-config.json"
+  fi
+
+  # Stage optional project files (e.g. package.json for SvelteKit detection)
+  files_dir="$FIXTURES_DIR/$name.files"
+  if [[ -d "$files_dir" ]]; then
+    cp -R "$files_dir/." "$TEST_CWD/"
   fi
 
   # Run dont.sh with sandboxed HOME and CWD. Substitute the placeholder

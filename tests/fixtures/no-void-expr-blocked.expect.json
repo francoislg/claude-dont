@@ -1,4 +1,0 @@
-{
-  "exitCode": 2,
-  "stdoutContains": ["no-void-expr", "BLOCKED", "void (...)"]
-}

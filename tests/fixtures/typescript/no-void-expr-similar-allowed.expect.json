@@ -1,0 +1,4 @@
+{
+  "exitCode": 0,
+  "stdoutNotContains": ["no-void-expr", "BLOCKED"]
+}

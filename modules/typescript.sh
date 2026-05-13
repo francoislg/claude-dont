@@ -146,8 +146,8 @@ run_rule "no-reexport"            "regex" '^[[:space:]]*(//|/\*|\*).*[Rr]e[- ]?e
 
 # eslint-disable comments — almost always suppressing a real issue. Fix the
 # underlying lint violation instead of silencing the rule.
-run_rule "no-void-expr"           "regex" 'void[[:space:]]*\(' \
-  "'void (...)' is not allowed. The 'void' operator is almost always used to silently discard a promise or expression result, which hides unhandled rejections and lost return values. If you're firing-and-forgetting a promise, either 'await' it, attach explicit '.catch()' handling, or extract a named function that owns the error path. If you're suppressing an unused-expression lint, fix the underlying issue instead."
+run_rule "no-void-expr"           "regex" '(^|[^A-Za-z0-9_$])void([[:space:]]*\(|[[:space:]]+[A-Za-z_$])' \
+  "The 'void' operator is not allowed (both 'void (...)' and 'void someFn()' forms). It is almost always used to silently discard a promise or expression result, which hides unhandled rejections and lost return values. Common case: '() => void asyncFn()' in a callback — drop the 'void' and use a block body that handles the promise: '() => { asyncFn().catch(logError); }'. For fire-and-forget, attach explicit '.catch()' handling or extract a named function that owns the error path. For sync functions, a block body '() => { fn(); }' is equivalent and clearer. If you're suppressing an unused-expression lint, fix the underlying issue instead."
 
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
   "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
