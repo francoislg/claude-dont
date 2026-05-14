@@ -149,6 +149,13 @@ run_rule "no-reexport"            "regex" '^[[:space:]]*(//|/\*|\*).*[Rr]e[- ]?e
 run_rule "no-void-expr"           "regex" '(^|[^A-Za-z0-9_$])void([[:space:]]*\(|[[:space:]]+[A-Za-z_$])' \
   "The 'void' operator is not allowed (both 'void (...)' and 'void someFn()' forms). It is almost always used to silently discard a promise or expression result, which hides unhandled rejections and lost return values. Common case: '() => void asyncFn()' in a callback — drop the 'void' and use a block body that handles the promise: '() => { asyncFn().catch(logError); }'. For fire-and-forget, attach explicit '.catch()' handling or extract a named function that owns the error path. For sync functions, a block body '() => { fn(); }' is equivalent and clearer. If you're suppressing an unused-expression lint, fix the underlying issue instead."
 
+# `T & object`, `T & {}`, `T & Object` — these intersections add nothing
+# meaningful and are almost always a hack to silence a type error. `T & object`
+# narrows non-objects out of `T` (rarely what's intended); `T & {}` is a no-op
+# used to defeat distributive conditional types or non-null narrowing.
+run_rule "no-intersection-empty"  "regex" '&[[:space:]]*(object\b|\{[[:space:]]*\}|Object\b)' \
+  "Intersection with 'object', '{}' or 'Object' is not allowed ('T & object', 'T & {}'). These add no meaningful structure and are almost always used to hack around a type error (e.g., defeating distributive conditionals, faking non-null narrowing). Fix the source type instead: use 'NonNullable<T>', 'Exclude<T, null | undefined>', a proper interface, or a type guard."
+
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
   "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
 
