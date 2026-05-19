@@ -126,6 +126,7 @@ Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists
 | Rule                  | What it blocks                                                                                    | Default severity |
 |-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
 | `no-window-location`  | `window.location` — use the `page` object from `$app/state` (or the `$page` store from `$app/stores`) | block |
+| `no-svelte-ignore`    | `svelte-ignore` directives — fix the underlying compiler warning (usually an a11y issue) instead  | block             |
 
 ## Block vs. nudge
 

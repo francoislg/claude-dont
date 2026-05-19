@@ -46,7 +46,8 @@
   "sveltekit": {
     "enabled": true,
     "rules": {
-      "no-window-location":     { "enabled": true, "severity": "block" }
+      "no-window-location":     { "enabled": true, "severity": "block" },
+      "no-svelte-ignore":       { "enabled": true, "severity": "block" }
     }
   }
 }

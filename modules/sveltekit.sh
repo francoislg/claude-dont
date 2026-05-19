@@ -99,5 +99,8 @@ run_rule() {
 run_rule "no-window-location" "fixed" "window.location" \
   "'window.location' is not allowed in SvelteKit. Use the reactive 'page' object from '\$app/state' (SvelteKit 2 — e.g. 'page.url.pathname') or the '\$page' store from '\$app/stores' (SvelteKit 1 — e.g. '\$page.url.pathname') instead. The router-aware 'page' stays in sync with navigation and works under SSR; 'window.location' is undefined on the server and bypasses the router."
 
+run_rule "no-svelte-ignore"   "fixed" "svelte-ignore" \
+  "A 'svelte-ignore' directive was added. Don't suppress Svelte compiler warnings — fix the underlying issue instead (most commonly an a11y violation: add the missing role, label, keyboard handler, or rework the element). If the warning is genuinely wrong for this code, raise it for discussion rather than silencing it inline."
+
 jq -n --argjson v "$VIOLATIONS" '{violations: $v}'
 exit 0

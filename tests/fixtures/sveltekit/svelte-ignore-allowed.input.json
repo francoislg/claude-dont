@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/routes/+page.svelte",
+    "content": "<script lang=\"ts\">\n  // Users can ignore this notification if they want.\n  let dismissed = false;\n</script>\n<p>You can ignore this banner.</p>\n"
+  }
+}
