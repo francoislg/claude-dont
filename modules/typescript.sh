@@ -168,6 +168,25 @@ run_rule "no-intersection-empty"  "regex" '&[[:space:]]*(object\b|\{[[:space:]]*
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
   "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
 
+# no-large-file — guard against monolithic file generation/replacement. For
+# Write, this is the entire file. For Edit, this is the size of the new_string
+# replacement. Threshold is configurable via 'maxLines' in the rule config
+# (default 200). Block forces Claude to split the work into smaller modules.
+if has_rule "no-large-file" && [[ -n "$CONTENT" ]]; then
+  max_lines="$(echo "$INPUT" | jq -r '._enabledRules[]? | select(.name == "no-large-file") | .config.maxLines // 200')"
+  line_count="$(printf '%s\n' "$CONTENT" | wc -l | tr -d ' ')"
+  if [[ "$line_count" -gt "$max_lines" ]]; then
+    if [[ "$TOOL_NAME" == "Write" ]]; then
+      scope_msg="The file you're writing is $line_count lines (threshold: $max_lines)."
+    else
+      scope_msg="The replacement you're applying is $line_count lines (threshold: $max_lines)."
+    fi
+    add "no-large-file" \
+      "$scope_msg Files this large are hard to navigate, review, and test. Split the work: extract types into a sibling 'types.ts', pull pure helpers into '<feature>/utils.ts', move large components into their own files, group related functions into smaller modules under the same folder. If this file is data (fixtures, generated code, large config), disable this rule per-project in .claude/dont-config.json or tune 'maxLines' upward." \
+      ""
+  fi
+fi
+
 # nudge-unknown-type — `: unknown` is sometimes legitimate (catch clauses,
 # pre-narrowing JSON.parse results) but most of the time a more specific type
 # is achievable. Excludes 'catch (e: unknown)' which is the correct pattern.

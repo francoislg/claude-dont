@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-large-file", "BLOCKED", "250 lines", "200"]
+}
