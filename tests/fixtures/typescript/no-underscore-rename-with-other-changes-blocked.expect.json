@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-underscore-rename", "BLOCKED", "seasonsEnabled → _seasonsEnabled"]
+}

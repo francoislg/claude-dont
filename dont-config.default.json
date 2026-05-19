@@ -37,7 +37,8 @@
       "no-void-expr":           { "enabled": true, "severity": "block" },
       "no-intersection-empty":  { "enabled": true, "severity": "block" },
       "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
-      "nudge-underscore-rename":{ "enabled": true, "severity": "nudge" },
+      "no-underscore-rename":   { "enabled": true, "severity": "block" },
+      "no-impl-alias":          { "enabled": true, "severity": "block" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
   },

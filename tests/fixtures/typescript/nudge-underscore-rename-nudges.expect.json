@@ -1,5 +1,0 @@
-{
-  "exitCode": 0,
-  "stdoutContains": ["nudge-underscore-rename", "seasonsEnabled", "_seasonsEnabled"],
-  "stdoutNotContains": ["BLOCKED"]
-}

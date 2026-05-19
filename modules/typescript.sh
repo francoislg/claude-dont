@@ -175,12 +175,12 @@ run_rule "nudge-unknown-type"     "regex" '(:[[:space:]]*unknown\b|@[A-Za-z]+[[:
   "Found 'unknown' type annotation (TS ': unknown' or JSDoc '@... {unknown}'). Consider if this could be a more specific type — an interface, union, or generic. 'unknown' is acceptable for genuinely untyped boundaries (JSON.parse results, deserialized data) where you then narrow with a type guard, but if you know the shape, declare it." \
   'catch\s*\('
 
-# nudge-underscore-rename — detect 'foo' → '_foo' renames in Edit operations.
+# no-underscore-rename — detect 'foo' → '_foo' renames in Edit operations.
 # This pattern almost always means the dev is suppressing an "unused variable"
 # warning rather than removing the genuinely-unused variable. Only fires on
 # Edit (we need both sides of the diff). Skips identifiers already prefixed
 # with '_' in the old content (those aren't new renames).
-if has_rule "nudge-underscore-rename" && [[ "$TOOL_NAME" == "Edit" && -n "$OLD_CONTENT" ]]; then
+if has_rule "no-underscore-rename" && [[ "$TOOL_NAME" == "Edit" && -n "$OLD_CONTENT" ]]; then
   renamed=""
   # Words that exist in old without underscore prefix
   while IFS= read -r word; do
@@ -199,11 +199,19 @@ if has_rule "nudge-underscore-rename" && [[ "$TOOL_NAME" == "Edit" && -n "$OLD_C
   done <<< "$(echo "$OLD_CONTENT" | grep -oE '\b[a-zA-Z][a-zA-Z0-9]{2,}\b' | sort -u)"
 
   if [[ -n "$renamed" ]]; then
-    add "nudge-underscore-rename" \
-      "Identifier renamed with underscore prefix ($renamed). This is almost always a way to silence an 'unused variable' warning. Decide: if the variable is genuinely unused, delete it (along with the parameter/destructured field if applicable); if it IS used downstream, restore the original name. Keeping a '_'-prefixed name as a workaround is rarely the right answer." \
+    add "no-underscore-rename" \
+      "Renaming an identifier with an underscore prefix is not allowed ($renamed). This is almost always a way to silence an 'unused variable' warning. If the variable is genuinely unused, delete it (along with the parameter/destructured field if applicable). If it IS used downstream, restore the original name. Keeping a '_'-prefixed name as a workaround is not acceptable." \
       ""
   fi
 fi
+
+# nudge-impl-alias — 'X as XImpl' / 'X as XOrig' / 'X as XOriginal' / 'X as XRaw' / 'X as XInner'
+# in an import or destructuring. Usually means Claude wrapped a function for
+# no real reason (name conflict avoided by alias, then a same-name local
+# defined and re-exported). If the wrapper adds nothing, drop it and use the
+# original directly.
+run_rule "no-impl-alias"          "regex" '\bas[[:space:]]+[A-Za-z_][A-Za-z0-9_]*(Impl|Original|Orig|Raw|Inner)\b' \
+  "Aliasing an identifier with an 'Impl/Original/Orig/Raw/Inner' suffix is not allowed (e.g. 'fetchX as fetchXImpl'). This is almost always an unnecessary wrapper: the same name was already in scope, so the import got aliased, then a local same-named function was defined to delegate to it. Drop the wrapper and use the original directly. If you genuinely need to wrap (telemetry, validation, behavior change), give the wrapper a meaningful name that reflects what it does (e.g. 'fetchXWithRetry', 'loggedFetchX') and import the original under its real name."
 
 # prefer-satisfies — nudge for `} as X` / `] as X` on object/array literals.
 # Already-blocked patterns won't reach here when their rules are enabled.
