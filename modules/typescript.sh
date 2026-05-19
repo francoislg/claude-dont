@@ -173,7 +173,7 @@ run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
 # replacement. Threshold is configurable via 'maxLines' in the rule config
 # (default 200). Block forces Claude to split the work into smaller modules.
 if has_rule "no-large-file" && [[ -n "$CONTENT" ]]; then
-  max_lines="$(echo "$INPUT" | jq -r '._enabledRules[]? | select(.name == "no-large-file") | .config.maxLines // 200')"
+  max_lines="$(echo "$INPUT" | jq -r '._enabledRules[]? | select(.name == "no-large-file") | .config.maxLines // 500')"
   line_count="$(printf '%s\n' "$CONTENT" | wc -l | tr -d ' ')"
   if [[ "$line_count" -gt "$max_lines" ]]; then
     if [[ "$TOOL_NAME" == "Write" ]]; then

@@ -111,7 +111,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
 | `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
 | `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
-| `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 200) — force splitting | block |
+| `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-intersection-empty`   | `T & object` / `T & {}` / `T & Object` — type-system hack, no real narrowing | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
