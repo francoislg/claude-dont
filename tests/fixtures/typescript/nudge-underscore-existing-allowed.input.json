@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "old_string": "class Foo {\n  private _internal = 1;\n  get internal() { return this._internal; }\n}",
+    "new_string": "class Foo {\n  private _internal = 2;\n  get internal() { return this._internal; }\n}"
+  }
+}

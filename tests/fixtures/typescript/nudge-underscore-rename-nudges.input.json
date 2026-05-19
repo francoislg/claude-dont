@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "old_string": "function handler({ seasonsEnabled, userId }: Props) {\n  return userId;\n}",
+    "new_string": "function handler({ _seasonsEnabled, userId }: Props) {\n  return userId;\n}"
+  }
+}

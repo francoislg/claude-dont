@@ -15,10 +15,12 @@ if [[ ! "$FILE_PATH" =~ \.(ts|tsx|js|jsx)$ ]]; then
 fi
 
 # Get the new content from the right field
+OLD_CONTENT=""
 if [[ "$TOOL_NAME" == "Write" ]]; then
   CONTENT="$(echo "$INPUT" | jq -r '.tool_input.content // empty')"
 elif [[ "$TOOL_NAME" == "Edit" ]]; then
   CONTENT="$(echo "$INPUT" | jq -r '.tool_input.new_string // empty')"
+  OLD_CONTENT="$(echo "$INPUT" | jq -r '.tool_input.old_string // empty')"
 else
   jq -n '{violations: []}'
   exit 0
@@ -172,6 +174,36 @@ run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
 run_rule "nudge-unknown-type"     "regex" '(:[[:space:]]*unknown\b|@[A-Za-z]+[[:space:]]*\{[^}]*\bunknown\b)' \
   "Found 'unknown' type annotation (TS ': unknown' or JSDoc '@... {unknown}'). Consider if this could be a more specific type — an interface, union, or generic. 'unknown' is acceptable for genuinely untyped boundaries (JSON.parse results, deserialized data) where you then narrow with a type guard, but if you know the shape, declare it." \
   'catch\s*\('
+
+# nudge-underscore-rename — detect 'foo' → '_foo' renames in Edit operations.
+# This pattern almost always means the dev is suppressing an "unused variable"
+# warning rather than removing the genuinely-unused variable. Only fires on
+# Edit (we need both sides of the diff). Skips identifiers already prefixed
+# with '_' in the old content (those aren't new renames).
+if has_rule "nudge-underscore-rename" && [[ "$TOOL_NAME" == "Edit" && -n "$OLD_CONTENT" ]]; then
+  renamed=""
+  # Words that exist in old without underscore prefix
+  while IFS= read -r word; do
+    [[ -z "$word" ]] && continue
+    # Skip if old_content already had _word (this isn't a new rename)
+    if echo "$OLD_CONTENT" | grep -qE "(^|[^A-Za-z0-9_])_${word}\b"; then
+      continue
+    fi
+    # Check: word exists in old, _word exists in new
+    if echo "$CONTENT" | grep -qE "(^|[^A-Za-z0-9_])_${word}\b"; then
+      if [[ -n "$renamed" ]]; then
+        renamed="$renamed, "
+      fi
+      renamed="${renamed}${word} → _${word}"
+    fi
+  done <<< "$(echo "$OLD_CONTENT" | grep -oE '\b[a-zA-Z][a-zA-Z0-9]{2,}\b' | sort -u)"
+
+  if [[ -n "$renamed" ]]; then
+    add "nudge-underscore-rename" \
+      "Identifier renamed with underscore prefix ($renamed). This is almost always a way to silence an 'unused variable' warning. Decide: if the variable is genuinely unused, delete it (along with the parameter/destructured field if applicable); if it IS used downstream, restore the original name. Keeping a '_'-prefixed name as a workaround is rarely the right answer." \
+      ""
+  fi
+fi
 
 # prefer-satisfies — nudge for `} as X` / `] as X` on object/array literals.
 # Already-blocked patterns won't reach here when their rules are enabled.

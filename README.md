@@ -114,6 +114,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-intersection-empty`   | `T & object` / `T & {}` / `T & Object` — type-system hack, no real narrowing | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
+| `nudge-underscore-rename` | `foo` → `_foo` rename in an Edit — usually suppresses unused-var lint instead of removing the variable | nudge |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
 
 ### `sveltekit` — applies to `Edit`/`Write` on `.svelte` / `.svelte.ts` / `.svelte.js` files
