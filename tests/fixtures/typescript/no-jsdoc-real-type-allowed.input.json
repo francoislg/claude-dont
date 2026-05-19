@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.js",
+    "content": "/**\n * @type {string}\n */\nlet name;\n\n/**\n * @param {{ id: number }} input\n * @returns {Promise<string>}\n */\nasync function process(input) { return String(input.id); }\n"
+  }
+}

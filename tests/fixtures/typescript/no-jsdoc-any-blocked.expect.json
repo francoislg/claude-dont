@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-jsdoc-any", "BLOCKED", "@type {any}", "@param {any}", "@returns {any}"]
+}

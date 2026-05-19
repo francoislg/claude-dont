@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-destructive-git", "BLOCKED", "git stash"]
+}

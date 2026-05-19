@@ -9,13 +9,15 @@
       "no-sed-i":               { "enabled": true, "severity": "block" },
       "no-sed-n":               { "enabled": true, "severity": "block" },
       "no-tsc-without-noemit":  { "enabled": true, "severity": "block" },
-      "no-code-file-redirect":  { "enabled": true, "severity": "block" }
+      "no-code-file-redirect":  { "enabled": true, "severity": "block" },
+      "no-destructive-git":     { "enabled": true, "severity": "block" }
     }
   },
   "typescript": {
     "enabled": true,
     "rules": {
       "no-as-any":              { "enabled": true, "severity": "block" },
+      "no-jsdoc-any":           { "enabled": true, "severity": "block" },
       "no-as-unknown":          { "enabled": true, "severity": "block" },
       "no-as-never":            { "enabled": true, "severity": "block" },
       "no-as-array":            { "enabled": true, "severity": "block" },
@@ -34,6 +36,7 @@
       "no-eslint-disable":      { "enabled": true, "severity": "block" },
       "no-void-expr":           { "enabled": true, "severity": "block" },
       "no-intersection-empty":  { "enabled": true, "severity": "block" },
+      "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
   },

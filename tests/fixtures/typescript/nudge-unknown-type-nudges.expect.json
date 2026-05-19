@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-unknown-type", "more specific type", "deps?: unknown", "@type {unknown}"],
+  "stdoutNotContains": ["BLOCKED"]
+}

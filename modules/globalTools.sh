@@ -125,5 +125,30 @@ if has_rule "no-find" && echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])find([[:s
   add "no-find" "'find' is not allowed. Use the Glob tool for file pattern matching (e.g. '**/*.ts', 'src/**/*.tsx'). Glob is faster, respects gitignore, and returns sorted results."
 fi
 
+# ------------------------------------------------------------
+# no-destructive-git — block path-mode 'git checkout' and 'git restore'
+# (without --staged). These silently discard uncommitted work in the matching
+# files. Branch switches like 'git checkout main' or 'git checkout feat/x' are
+# untouched — only path-form invocations are blocked.
+# ------------------------------------------------------------
+if has_rule "no-destructive-git"; then
+  destructive_msg="'git checkout <path>' and 'git restore <path>' silently discard uncommitted changes in the matching files. If you wanted to undo your local edits: stash first with 'git stash push -m \"wip\"' (reversible with 'git stash pop'). If you wanted to revert a single hunk, use the Edit tool. If you wanted to switch branches, name the branch without a trailing slash or path separator."
+
+  # 'git checkout .' or 'git checkout ./...'
+  if echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])git[[:space:]]+checkout[[:space:]]+\.($|[[:space:]/])'; then
+    add "no-destructive-git" "$destructive_msg"
+  # 'git checkout -- ...' (explicit path mode)
+  elif echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])git[[:space:]]+checkout[[:space:]]+(-[a-zA-Z]*[[:space:]]+)*--[[:space:]]'; then
+    add "no-destructive-git" "$destructive_msg"
+  # 'git checkout <something>/' (trailing slash → directory path)
+  elif echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])git[[:space:]]+checkout[[:space:]]+[^[:space:]-][^[:space:]]*/[[:space:]]*($|[[:space:]&;|])'; then
+    add "no-destructive-git" "$destructive_msg"
+  # 'git restore ...' without --staged
+  elif echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])git[[:space:]]+restore([[:space:]]|$)' \
+       && ! echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])git[[:space:]]+restore[[:space:]]+([^[:space:]]+[[:space:]]+)*--staged\b'; then
+    add "no-destructive-git" "$destructive_msg"
+  fi
+fi
+
 emit
 exit 0

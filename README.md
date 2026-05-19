@@ -87,12 +87,14 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-sed-n`              | `sed -n` — use the `Read` tool with offset/limit                 | block             |
 | `no-tsc-without-noemit` | bare `tsc` without `--noEmit` — would emit compiled files        | block             |
 | `no-code-file-redirect` | `> file.ts` (and similar) — use the `Write`/`Edit` tools         | block             |
+| `no-destructive-git`    | `git checkout .` / `git checkout src/` / `git checkout -- ...` / `git restore <path>` — suggests `git stash` | block |
 
 ### `typescript` — applies to `Edit` and `Write` tool calls on `.ts`/`.tsx` files
 
 | Rule                      | What it blocks / nudges                              | Default severity |
 |---------------------------|------------------------------------------------------|-------------------|
 | `no-as-any`               | `as any`                                             | block             |
+| `no-jsdoc-any`            | JSDoc `@type {any}`, `@param {any}`, `@returns {any}`, etc. | block      |
 | `no-as-unknown`           | `as unknown` (incl. double-casts)                    | block             |
 | `no-as-never`             | `as never`                                           | block             |
 | `no-as-array`             | `as Array<...>`                                      | block             |
@@ -102,7 +104,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-await-import`         | `await import(...)`                                  | block             |
 | `no-inline-import-type`   | inline `import("./x").Y` syntax                      | block             |
 | `no-require`              | `= require(...)` in TS                               | block             |
-| `no-param-any`            | `: any`, `: unknown`, `: never` parameter types      | block             |
+| `no-param-any`            | `: any`, `: never` parameter types                   | block             |
 | `no-chained-as`           | `x as A as B` (and `(x as A) as B`)                  | block             |
 | `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |
 | `no-paren-as`             | `fn() as X`, `(...) as X` (except `as const`)        | block             |
@@ -111,6 +113,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-intersection-empty`   | `T & object` / `T & {}` / `T & Object` — type-system hack, no real narrowing | block |
+| `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
 
 ### `sveltekit` — applies to `Edit`/`Write` on `.svelte` / `.svelte.ts` / `.svelte.js` files

@@ -88,6 +88,12 @@ run_rule() {
 run_rule "no-as-any"              "fixed" "as any" \
   "'as any' is not allowed. Use proper types, generics, or type narrowing instead. $GUARD_HINT"
 
+# JSDoc '@type {any}', '@param {any}', '@returns {any}', '@property {any}' etc.
+# In .js files JSDoc annotations are how types are declared — `any` defeats the
+# entire point.
+run_rule "no-jsdoc-any"           "regex" '@[A-Za-z]+[[:space:]]*\{[^}]*\bany\b' \
+  "JSDoc '@... {any}' annotation is not allowed (covers '@type', '@param', '@returns', '@property', etc.). Use a real type — '@type {string}', '@param {{ id: number; name: string }}', a '@typedef' for shared shapes, or import a TS type with '@type {import(\"./types\").Foo}'. If the value really is dynamic, narrow with a type guard instead."
+
 run_rule "no-as-unknown"          "fixed" "as unknown" \
   "'as unknown' is not allowed. Use type guards (typeof, instanceof, in), overloads, or fix the source type. 'as unknown as X' double-casts are never acceptable. $GUARD_HINT"
 
@@ -113,8 +119,9 @@ run_rule "no-require"             "regex" '=\s*require\(' \
   "'= require()' CommonJS imports are not allowed in TypeScript. Use regular static 'import' statements at the top of the file instead."
 
 # Exclude catch clauses — `catch (e: unknown)` is the correct safe pattern.
-run_rule "no-param-any"           "regex" '(\w|[}]|\])\s*:\s*(any|unknown|never)\b' \
-  "': any', ': unknown', or ': never' parameter type is not allowed. Define a real type for this parameter (e.g., a specific interface, union, or generic)." \
+# Note: ': unknown' is handled by the separate 'nudge-unknown-type' rule below.
+run_rule "no-param-any"           "regex" '(\w|[}]|\])\s*:\s*(any|never)\b' \
+  "': any' or ': never' parameter type is not allowed. Define a real type for this parameter (e.g., a specific interface, union, or generic)." \
   'catch\s*\('
 
 run_rule "no-as-function"         "fixed" "as Function" \
@@ -158,6 +165,13 @@ run_rule "no-intersection-empty"  "regex" '&[[:space:]]*(object\b|\{[[:space:]]*
 
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
   "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
+
+# nudge-unknown-type — `: unknown` is sometimes legitimate (catch clauses,
+# pre-narrowing JSON.parse results) but most of the time a more specific type
+# is achievable. Excludes 'catch (e: unknown)' which is the correct pattern.
+run_rule "nudge-unknown-type"     "regex" '(:[[:space:]]*unknown\b|@[A-Za-z]+[[:space:]]*\{[^}]*\bunknown\b)' \
+  "Found 'unknown' type annotation (TS ': unknown' or JSDoc '@... {unknown}'). Consider if this could be a more specific type — an interface, union, or generic. 'unknown' is acceptable for genuinely untyped boundaries (JSON.parse results, deserialized data) where you then narrow with a type guard, but if you know the shape, declare it." \
+  'catch\s*\('
 
 # prefer-satisfies — nudge for `} as X` / `] as X` on object/array literals.
 # Already-blocked patterns won't reach here when their rules are enabled.
