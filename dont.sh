@@ -127,6 +127,14 @@ if [[ "$BLOCK_COUNT" -gt 0 ]]; then
   ')"
   emit_context "BLOCK" "$body"
   echo "claude-dont: blocked ($BLOCK_COUNT issue$([[ $BLOCK_COUNT -ne 1 ]] && echo s))" >&2
+  # Surface the actual violations on stderr too — Claude Code's UI typically
+  # only shows the stderr line, so the user can see *why* it was blocked
+  # without expanding the hook output. First line of each message only, to
+  # keep it short.
+  printf '%s' "$ALL_VIOLATIONS" | jq -r '
+    .[] | select(.severity == "block")
+    | "  • [\(.rule)] " + (.message | split("\n")[0])
+  ' >&2
   exit 2
 fi
 
