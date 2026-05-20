@@ -106,7 +106,13 @@ run_rule "no-as-array"            "fixed" "as Array<" \
   "'as Array<>' is not allowed. Use Array.isArray() for type narrowing, or fix the source type. Example: function isStringArray(value: unknown): value is Array<string> { return Array.isArray(value) && value.every(v => typeof v === 'string'); }"
 
 run_rule "no-record-loose"        "regex" 'Record<string,\s*(unknown|any)>' \
-  "'Record<string, unknown/any>' is not allowed. Define a proper type or interface with the actual known keys instead of using a loose Record. If the keys are truly dynamic, use a Map or a typed index signature: { [key: string]: SpecificType }."
+  "'Record<string, unknown/any>' is not allowed. Define a proper type or interface with the actual known keys instead of using a loose Record. If the keys are truly dynamic, use a Map or a typed index signature with a real value type: { [key: string]: SpecificType }."
+
+# Index signatures with 'any' or 'unknown' values — '[k: string]: unknown',
+# '[id: number]: any', etc. Same anti-pattern as Record<string, unknown> but
+# in object-literal/interface syntax. Forces a real value type.
+run_rule "no-loose-index-signature" "regex" '\[[A-Za-z_][A-Za-z0-9_]*[[:space:]]*:[[:space:]]*(string|number|symbol)\][[:space:]]*:[[:space:]]*(any|unknown)\b' \
+  "Index signature with 'any' or 'unknown' value (e.g. '[k: string]: unknown') is not allowed. This is the same loose-typing escape hatch as 'Record<string, unknown>' in different syntax. Define the actual keys you care about in a typed interface, or use a typed index signature with a specific value type: '{ [key: string]: SpecificType }'. If you genuinely don't know the shape, narrow it with a type guard at the boundary."
 
 run_rule "no-generic-any-unknown" "regex" '<[^<>]*\b(any|unknown)\b[^<>]*>' \
   "Generic type argument 'any' / 'unknown' (e.g. 'Promise<any>', 'Map<string, unknown>', 'useState<any>()') is not allowed. Use a specific type. If the value's shape is genuinely dynamic, define a proper interface/union or use a type guard. $GUARD_HINT"
@@ -192,7 +198,7 @@ fi
 # is achievable. Excludes 'catch (e: unknown)' which is the correct pattern.
 run_rule "nudge-unknown-type"     "regex" '(:[[:space:]]*unknown\b|@[A-Za-z]+[[:space:]]*\{[^}]*\bunknown\b)' \
   "Found 'unknown' type annotation (TS ': unknown' or JSDoc '@... {unknown}'). Consider if this could be a more specific type — an interface, union, or generic. 'unknown' is acceptable for genuinely untyped boundaries (JSON.parse results, deserialized data) where you then narrow with a type guard, but if you know the shape, declare it." \
-  'catch\s*\('
+  '(catch\s*\(|\][[:space:]]*:[[:space:]]*unknown)'
 
 # no-underscore-rename — detect 'foo' → '_foo' renames in Edit operations.
 # This pattern almost always means the dev is suppressing an "unused variable"

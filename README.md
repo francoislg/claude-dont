@@ -100,6 +100,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-as-array`             | `as Array<...>`                                      | block             |
 | `no-as-function`          | `as Function`                                        | block             |
 | `no-record-loose`         | `Record<string, any>`, `Record<string, unknown>`     | block             |
+| `no-loose-index-signature`| `[k: string]: any` / `[k: string]: unknown` index signatures | block       |
 | `no-generic-any-unknown`  | `Promise<any>`, `Map<string, unknown>`, etc.         | block             |
 | `no-await-import`         | `await import(...)`                                  | block             |
 | `no-inline-import-type`   | inline `import("./x").Y` syntax                      | block             |

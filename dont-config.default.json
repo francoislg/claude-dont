@@ -23,6 +23,7 @@
       "no-as-array":            { "enabled": true, "severity": "block" },
       "no-as-function":         { "enabled": true, "severity": "block" },
       "no-record-loose":        { "enabled": true, "severity": "block" },
+      "no-loose-index-signature":{ "enabled": true, "severity": "block" },
       "no-generic-any-unknown": { "enabled": true, "severity": "block" },
       "no-await-import":        { "enabled": true, "severity": "block" },
       "no-inline-import-type":  { "enabled": true, "severity": "block" },
