@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-export-equals", "BLOCKED", "postsAddReactionToPost"]
+}

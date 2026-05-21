@@ -28,6 +28,7 @@
       "no-await-import":        { "enabled": true, "severity": "block" },
       "no-inline-import-type":  { "enabled": true, "severity": "block" },
       "no-require":             { "enabled": true, "severity": "block" },
+      "no-export-equals":       { "enabled": true, "severity": "block" },
       "no-param-any":           { "enabled": true, "severity": "block" },
       "no-chained-as":          { "enabled": true, "severity": "block" },
       "no-void-var":            { "enabled": true, "severity": "block" },

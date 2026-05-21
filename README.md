@@ -105,6 +105,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-await-import`         | `await import(...)`                                  | block             |
 | `no-inline-import-type`   | inline `import("./x").Y` syntax                      | block             |
 | `no-require`              | `= require(...)` in TS                               | block             |
+| `no-export-equals`        | `export = foo` CommonJS-style export — use `export default` or named exports | block |
 | `no-param-any`            | `: any`, `: never` parameter types                   | block             |
 | `no-chained-as`           | `x as A as B` (and `(x as A) as B`)                  | block             |
 | `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |

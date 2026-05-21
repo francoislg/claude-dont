@@ -126,6 +126,12 @@ run_rule "no-inline-import-type"  "regex" 'import\([^)]*\)\.' \
 run_rule "no-require"             "regex" '=\s*require\(' \
   "'= require()' CommonJS imports are not allowed in TypeScript. Use regular static 'import' statements at the top of the file instead."
 
+# 'export = foo' — legacy TS/CJS interop syntax. Modern code should use
+# 'export default foo' (default export) or named exports. 'export =' breaks
+# tree-shaking, ESM compat, and is incompatible with isolated modules.
+run_rule "no-export-equals"       "regex" '^[[:space:]]*export[[:space:]]*=[[:space:]]*' \
+  "'export = foo' CommonJS-style export is not allowed. Use 'export default foo' for a default export, or named exports ('export { foo }' / 'export const foo = ...'). 'export =' is a legacy TS/CJS-interop syntax that breaks isolatedModules, tree-shaking, and ESM compatibility."
+
 # Exclude catch clauses — `catch (e: unknown)` is the correct safe pattern.
 # Note: ': unknown' is handled by the separate 'nudge-unknown-type' rule below.
 run_rule "no-param-any"           "regex" '(\w|[}]|\])\s*:\s*(any|never)\b' \
