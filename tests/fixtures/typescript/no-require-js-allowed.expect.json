@@ -1,0 +1,4 @@
+{
+  "exitCode": 0,
+  "stdoutNotContains": ["no-require", "no-export-equals", "BLOCKED"]
+}
