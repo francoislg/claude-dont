@@ -89,12 +89,31 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-code-file-redirect` | `> file.ts` (and similar) — use the `Write`/`Edit` tools         | block             |
 | `no-destructive-git`    | `git checkout .` / `git checkout src/` / `git checkout -- ...` / `git restore <path>` — suggests `git stash` | block |
 
-### `typescript` — applies to `Edit` and `Write` tool calls on `.ts`/`.tsx` files
+### `js-ts` — applies to `Edit` and `Write` on `.ts` / `.tsx` / `.js` / `.jsx` files
+
+Cross-language patterns that are footguns in both TypeScript and JavaScript.
+
+| Rule                      | What it blocks / nudges                              | Default severity |
+|---------------------------|------------------------------------------------------|-------------------|
+| `no-jsdoc-any`            | JSDoc `@type {any}`, `@param {any}`, `@returns {any}`, etc. | block      |
+| `no-await-import`         | `await import(...)`                                  | block             |
+| `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |
+| `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
+| `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
+| `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
+| `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
+| `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
+| `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
+| `no-underscore-rename`    | `foo` → `_foo` rename in an Edit — suppresses unused-var lint instead of removing the variable | block |
+| `no-impl-alias`           | `X as XImpl/XOriginal/XOrig/XRaw/XInner` import alias — almost always an unnecessary wrapper | block |
+
+### `typescript` — applies to `Edit` and `Write` on `.ts` / `.tsx` files ONLY
+
+TypeScript-specific syntax patterns. Will not fire on `.js`/`.jsx` files.
 
 | Rule                      | What it blocks / nudges                              | Default severity |
 |---------------------------|------------------------------------------------------|-------------------|
 | `no-as-any`               | `as any`                                             | block             |
-| `no-jsdoc-any`            | JSDoc `@type {any}`, `@param {any}`, `@returns {any}`, etc. | block      |
 | `no-as-unknown`           | `as unknown` (incl. double-casts)                    | block             |
 | `no-as-never`             | `as never`                                           | block             |
 | `no-as-array`             | `as Array<...>`                                      | block             |
@@ -102,23 +121,13 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-record-loose`         | `Record<string, any>`, `Record<string, unknown>`     | block             |
 | `no-loose-index-signature`| `[k: string]: any` / `[k: string]: unknown` index signatures | block       |
 | `no-generic-any-unknown`  | `Promise<any>`, `Map<string, unknown>`, etc.         | block             |
-| `no-await-import`         | `await import(...)`                                  | block             |
 | `no-inline-import-type`   | inline `import("./x").Y` syntax                      | block             |
 | `no-require`              | `= require(...)` in TS                               | block             |
 | `no-export-equals`        | `export = foo` CommonJS-style export — use `export default` or named exports | block |
 | `no-param-any`            | `: any`, `: never` parameter types                   | block             |
 | `no-chained-as`           | `x as A as B` (and `(x as A) as B`)                  | block             |
-| `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |
 | `no-paren-as`             | `fn() as X`, `(...) as X` (except `as const`)        | block             |
-| `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
-| `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
-| `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
-| `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
-| `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-intersection-empty`   | `T & object` / `T & {}` / `T & Object` — type-system hack, no real narrowing | block |
-| `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
-| `no-underscore-rename`    | `foo` → `_foo` rename in an Edit — suppresses unused-var lint instead of removing the variable | block |
-| `no-impl-alias`           | `X as XImpl/XOriginal/XOrig/XRaw/XInner` import alias — almost always an unnecessary wrapper | block |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
 
 ### `sveltekit` — applies to `Edit`/`Write` on `.svelte` / `.svelte.ts` / `.svelte.js` files

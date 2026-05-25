@@ -1,5 +1,5 @@
 {
-  "typescript": {
+  "js-ts": {
     "rules": {
       "no-large-file": { "maxLines": 1000 }
     }

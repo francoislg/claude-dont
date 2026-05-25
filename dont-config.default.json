@@ -13,11 +13,26 @@
       "no-destructive-git":     { "enabled": true, "severity": "block" }
     }
   },
+  "js-ts": {
+    "enabled": true,
+    "rules": {
+      "no-jsdoc-any":           { "enabled": true, "severity": "block" },
+      "no-await-import":        { "enabled": true, "severity": "block" },
+      "no-void-var":            { "enabled": true, "severity": "block" },
+      "no-iife":                { "enabled": true, "severity": "block" },
+      "no-reexport":            { "enabled": true, "severity": "block" },
+      "no-eslint-disable":      { "enabled": true, "severity": "block" },
+      "no-void-expr":           { "enabled": true, "severity": "block" },
+      "no-large-file":          { "enabled": true, "severity": "block", "maxLines": 500 },
+      "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
+      "no-underscore-rename":   { "enabled": true, "severity": "block" },
+      "no-impl-alias":          { "enabled": true, "severity": "block" }
+    }
+  },
   "typescript": {
     "enabled": true,
     "rules": {
       "no-as-any":              { "enabled": true, "severity": "block" },
-      "no-jsdoc-any":           { "enabled": true, "severity": "block" },
       "no-as-unknown":          { "enabled": true, "severity": "block" },
       "no-as-never":            { "enabled": true, "severity": "block" },
       "no-as-array":            { "enabled": true, "severity": "block" },
@@ -25,23 +40,13 @@
       "no-record-loose":        { "enabled": true, "severity": "block" },
       "no-loose-index-signature":{ "enabled": true, "severity": "block" },
       "no-generic-any-unknown": { "enabled": true, "severity": "block" },
-      "no-await-import":        { "enabled": true, "severity": "block" },
       "no-inline-import-type":  { "enabled": true, "severity": "block" },
       "no-require":             { "enabled": true, "severity": "block" },
       "no-export-equals":       { "enabled": true, "severity": "block" },
       "no-param-any":           { "enabled": true, "severity": "block" },
       "no-chained-as":          { "enabled": true, "severity": "block" },
-      "no-void-var":            { "enabled": true, "severity": "block" },
       "no-paren-as":            { "enabled": true, "severity": "block" },
-      "no-reexport":            { "enabled": true, "severity": "block" },
-      "no-iife":                { "enabled": true, "severity": "block" },
-      "no-eslint-disable":      { "enabled": true, "severity": "block" },
-      "no-void-expr":           { "enabled": true, "severity": "block" },
       "no-intersection-empty":  { "enabled": true, "severity": "block" },
-      "no-large-file":          { "enabled": true, "severity": "block", "maxLines": 500 },
-      "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
-      "no-underscore-rename":   { "enabled": true, "severity": "block" },
-      "no-impl-alias":          { "enabled": true, "severity": "block" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
   },
