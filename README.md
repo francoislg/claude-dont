@@ -104,6 +104,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
+| `nudge-skipped-test`      | `describe.skip(` / `test.skip(` / `it.skip(` / `xdescribe(` / `xit(` / `xtest(` — fix or delete instead | nudge |
 | `no-underscore-rename`    | `foo` → `_foo` rename in an Edit — suppresses unused-var lint instead of removing the variable | block |
 | `no-impl-alias`           | `X as XImpl/XOriginal/XOrig/XRaw/XInner` import alias — almost always an unnecessary wrapper | block |
 

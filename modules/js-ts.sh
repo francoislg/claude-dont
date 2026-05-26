@@ -177,6 +177,13 @@ if has_rule "no-underscore-rename" && [[ "$TOOL_NAME" == "Edit" && -n "$OLD_CONT
   fi
 fi
 
+# nudge-skipped-test — '.skip(' or 'xdescribe(' / 'xit(' / 'xtest(' on test
+# suites. Almost always a sign of dodging a broken test instead of fixing or
+# deleting it. Acceptable in narrow cases (e.g., temporarily skip while
+# deferring to a tracked follow-up with a date/ticket reference).
+run_rule "nudge-skipped-test"     "regex" '\b((describe|test|it)\.skip|x(describe|test|it))[[:space:]]*\(' \
+  "A test was skipped ('.skip(...)' or 'x{describe,it,test}(...)'). Skipping a test is rarely the right answer: if the test is broken, fix the underlying bug or update the assertion; if the test no longer covers anything useful, delete it. Only keep '.skip' if you have a concrete reason and a tracked follow-up — leave a comment with an issue ID or date. Don't accumulate skipped tests; they rot and stop providing signal."
+
 # no-impl-alias — 'X as XImpl' / 'X as XOrig' / 'X as XOriginal' / 'X as XRaw' / 'X as XInner'
 # in an import or destructuring. Usually means Claude wrapped a function for
 # no real reason (name conflict avoided by alias, then a same-name local

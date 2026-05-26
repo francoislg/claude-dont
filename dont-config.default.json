@@ -25,6 +25,7 @@
       "no-void-expr":           { "enabled": true, "severity": "block" },
       "no-large-file":          { "enabled": true, "severity": "block", "maxLines": 500 },
       "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
+      "nudge-skipped-test":     { "enabled": true, "severity": "nudge" },
       "no-underscore-rename":   { "enabled": true, "severity": "block" },
       "no-impl-alias":          { "enabled": true, "severity": "block" }
     }

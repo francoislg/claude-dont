@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-skipped-test", "describe.skip", "test.skip", "xit"],
+  "stdoutNotContains": ["BLOCKED"]
+}
