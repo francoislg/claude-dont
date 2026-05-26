@@ -189,6 +189,15 @@ fi
 run_rule "nudge-skipped-test"     "regex" '\b((describe|test|it)\.skip|x(describe|test|it))[[:space:]]*\(' \
   "A test was skipped ('.skip(...)' or 'x{describe,it,test}(...)'). Skipping a test is rarely the right answer: if the test is broken, fix the underlying bug or update the assertion; if the test no longer covers anything useful, delete it. Only keep '.skip' if you have a concrete reason and a tracked follow-up — leave a comment with an issue ID or date. Don't accumulate skipped tests; they rot and stop providing signal."
 
+# nudge-import-alias — any 'import { x as y } from ...' rename. Most are
+# legitimate (collision, clarity, 'default as foo') but it's worth asking on
+# every one whether the alias actually adds value. Excludes 'import * as foo'
+# namespace imports (those are the standard ESM syntax and not a smell).
+# Targets single-line imports only — multi-line continuations may be missed.
+run_rule "nudge-import-alias"     "regex" '^[[:space:]]*import[[:space:]].*\bas[[:space:]]+[A-Za-z_][A-Za-z0-9_]*' \
+  "An import alias 'as ...' was used. Do you actually need the rename? Aliasing is appropriate when (a) two imports would collide, (b) the local name is genuinely clearer in context, or (c) it's a 'default as foo' pattern. If none of those apply, drop the alias and use the original name — it's simpler to trace." \
+  'import[[:space:]]+\*[[:space:]]+as[[:space:]]'
+
 # no-impl-alias — 'X as XImpl' / 'X as XOrig' / 'X as XOriginal' / 'X as XRaw' / 'X as XInner'
 # in an import or destructuring. Usually means Claude wrapped a function for
 # no real reason (name conflict avoided by alias, then a same-name local

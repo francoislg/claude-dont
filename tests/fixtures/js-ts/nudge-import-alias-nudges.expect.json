@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-import-alias", "Connection as DB", "fetchUser as getUser"],
+  "stdoutNotContains": ["BLOCKED"]
+}
