@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-oxlint-disable", "BLOCKED", "fix the underlying"]
+}

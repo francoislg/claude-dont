@@ -120,6 +120,11 @@ run_rule "no-void-expr"           "regex" '(^|[^A-Za-z0-9_$])void([[:space:]]*\(
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \
   "An 'eslint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
 
+# oxlint-disable — same anti-pattern as eslint-disable, just for the oxlint
+# Rust-based linter. Fix the underlying issue rather than silencing it.
+run_rule "no-oxlint-disable"      "regex" 'oxlint-disable' \
+  "An 'oxlint-disable' comment was added. Don't suppress lint rules — fix the underlying issue instead. If the rule is genuinely wrong for this codebase, raise it for discussion rather than silencing it inline."
+
 # no-large-file — guard against monolithic file generation/replacement. For
 # Write, this is the entire file. For Edit, this is the size of the new_string
 # replacement. Threshold is configurable via 'maxLines' in the rule config

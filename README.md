@@ -101,6 +101,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
 | `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
 | `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
+| `no-oxlint-disable`       | `// oxlint-disable` / `/* oxlint-disable */` — fix the underlying lint issue | block |
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
