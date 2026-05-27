@@ -39,6 +39,7 @@
       "no-as-unknown":          { "enabled": true, "severity": "block" },
       "no-as-never":            { "enabled": true, "severity": "block" },
       "no-as-array":            { "enabled": true, "severity": "block" },
+      "no-as-object":           { "enabled": true, "severity": "block" },
       "no-as-function":         { "enabled": true, "severity": "block" },
       "no-record-loose":        { "enabled": true, "severity": "block" },
       "no-loose-index-signature":{ "enabled": true, "severity": "block" },

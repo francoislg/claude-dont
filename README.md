@@ -120,6 +120,7 @@ TypeScript-specific syntax patterns. Will not fire on `.js`/`.jsx` files.
 | `no-as-unknown`           | `as unknown` (incl. double-casts)                    | block             |
 | `no-as-never`             | `as never`                                           | block             |
 | `no-as-array`             | `as Array<...>`                                      | block             |
+| `no-as-object`            | `as object` / `as {}` / `as Object` — too-loose cast | block             |
 | `no-as-function`          | `as Function`                                        | block             |
 | `no-record-loose`         | `Record<string, any>`, `Record<string, unknown>`     | block             |
 | `no-loose-index-signature`| `[k: string]: any` / `[k: string]: unknown` index signatures | block       |

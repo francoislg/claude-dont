@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-as-object", "BLOCKED", "as object", "as {}", "as Object"]
+}

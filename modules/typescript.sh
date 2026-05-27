@@ -119,6 +119,12 @@ run_rule "no-as-never"            "regex" '\bas never\b' \
 run_rule "no-as-array"            "fixed" "as Array<" \
   "'as Array<>' is not allowed. Use Array.isArray() for type narrowing, or fix the source type. Example: function isStringArray(value: unknown): value is Array<string> { return Array.isArray(value) && value.every(v => typeof v === 'string'); }"
 
+# 'as object', 'as {}', 'as Object' — casting to the loose object type. Same
+# anti-pattern as 'T & object' but in cast form: widens to a near-useless
+# type just to silence the compiler.
+run_rule "no-as-object"           "regex" '\bas[[:space:]]+(object\b|\{[[:space:]]*\}|Object\b)' \
+  "Casting with 'as object', 'as {}' or 'as Object' is not allowed (e.g. '{ x: 1 } as object'). The 'object' / '{}' / 'Object' types are essentially untyped — you lose all property knowledge. Use a real interface or type alias for the shape, or 'satisfies' for literal validation. If you're trying to widen for a third-party API, declare the actual expected shape."
+
 run_rule "no-record-loose"        "regex" 'Record<string,\s*(unknown|any)>' \
   "'Record<string, unknown/any>' is not allowed. Define a proper type or interface with the actual known keys instead of using a loose Record. If the keys are truly dynamic, use a Map or a typed index signature with a real value type: { [key: string]: SpecificType }."
 
