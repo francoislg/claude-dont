@@ -18,12 +18,33 @@ fi
 COMMAND="$(echo "$INPUT" | jq -r '.tool_input.command // empty')"
 CWD="$(echo "$INPUT" | jq -r '.cwd // empty')"
 
+# Parse _enabledRules into parallel bash arrays ONCE so per-rule lookups
+# don't each spawn a jq subprocess (was the biggest cost in the old layout).
+RULE_NAMES=()
+RULE_SEVERITIES=()
+while IFS=$'\t' read -r _rn_name _rn_sev; do
+  [[ -z "$_rn_name" ]] && continue
+  RULE_NAMES+=("$_rn_name")
+  RULE_SEVERITIES+=("$_rn_sev")
+done <<< "$(echo "$INPUT" | jq -r '._enabledRules[]? | "\(.name)\t\(.severity)"')"
+
 has_rule() {
-  echo "$INPUT" | jq -e --arg name "$1" '._enabledRules[]? | select(.name == $name)' >/dev/null
+  local _target="$1" _r
+  for _r in "${RULE_NAMES[@]}"; do
+    [[ "$_r" == "$_target" ]] && return 0
+  done
+  return 1
 }
 
 severity_of() {
-  echo "$INPUT" | jq -r --arg name "$1" '._enabledRules[]? | select(.name == $name) | .severity'
+  local _target="$1" _r _i=0
+  for _r in "${RULE_NAMES[@]}"; do
+    if [[ "$_r" == "$_target" ]]; then
+      echo "${RULE_SEVERITIES[$_i]}"
+      return
+    fi
+    _i=$((_i + 1))
+  done
 }
 
 VIOLATIONS='[]'
