@@ -51,6 +51,7 @@
       "no-chained-as":          { "enabled": true, "severity": "block" },
       "no-paren-as":            { "enabled": true, "severity": "block" },
       "no-intersection-empty":  { "enabled": true, "severity": "block" },
+      "nudge-jsx-let":          { "enabled": true, "severity": "nudge" },
       "prefer-satisfies":       { "enabled": true, "severity": "nudge" }
     }
   },

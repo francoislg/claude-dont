@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-jsx-let", "React.ReactNode", "JSX.Element", "ReactNode | null"],
+  "stdoutNotContains": ["BLOCKED"]
+}

@@ -132,6 +132,7 @@ TypeScript-specific syntax patterns. Will not fire on `.js`/`.jsx` files.
 | `no-chained-as`           | `x as A as B` (and `(x as A) as B`)                  | block             |
 | `no-paren-as`             | `fn() as X`, `(...) as X` (except `as const`)        | block             |
 | `no-intersection-empty`   | `T & object` / `T & {}` / `T & Object` — type-system hack, no real narrowing | block |
+| `nudge-jsx-let`           | `let X: React.ReactNode` / `JSX.Element` — render inline or extract a function | nudge |
 | `prefer-satisfies`        | `} as X` / `] as X` literal casts → suggest `satisfies` | nudge          |
 
 ### `sveltekit` — applies to `Edit`/`Write` on `.svelte` / `.svelte.ts` / `.svelte.js` files

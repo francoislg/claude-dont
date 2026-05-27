@@ -173,7 +173,15 @@ run_rule "no-paren-as"            "regex" '\)\s+as\s+[A-Z][A-Za-z0-9_]*' \
 run_rule "no-intersection-empty"  "regex" '&[[:space:]]*(object\b|\{[[:space:]]*\}|Object\b)' \
   "Intersection with 'object', '{}' or 'Object' is not allowed ('T & object', 'T & {}'). These add no meaningful structure and are almost always used to hack around a type error (e.g., defeating distributive conditionals, faking non-null narrowing). Fix the source type instead: use 'NonNullable<T>', 'Exclude<T, null | undefined>', a proper interface, or a type guard."
 
-# prefer-satisfies — nudge for `} as X` / `] as X` on object/array literals.
+# nudge-jsx-let — declaring a 'let' variable typed as React.ReactNode /
+# JSX.Element / React.ReactElement is almost always the "build up JSX in
+# branches then render the variable" anti-pattern. Render inline with a
+# conditional/ternary, or extract a function that returns JSX. Excludes
+# array forms ('ReactNode[]' / 'JSX.Element[]') which are legitimate when
+# collecting a list of nodes — trailing context must be ';', '=', or '|'
+# (union start), not '[' or '<'.
+run_rule "nudge-jsx-let"          "regex" '\b(let|var)[[:space:]]+[A-Za-z_][A-Za-z0-9_]*[[:space:]]*:[[:space:]]*((React\.)?(ReactNode|ReactElement)|JSX\.Element)\b[[:space:]]*[;=|]' \
+  "A 'let' variable typed as React.ReactNode / JSX.Element was declared. This is almost always the 'build JSX in branches and render the var at the end' anti-pattern. Render inline with a conditional or ternary instead: '{condition ? <A/> : <B/>}'. For more than two branches, extract a function — 'function renderBody() { ... }' — and call it inline. Intermediary JSX vars make it hard to trace what renders when; inline JSX or a named function are clearer."
 # Already-blocked patterns won't reach here when their rules are enabled.
 run_rule "prefer-satisfies"       "regex" '[]}][[:space:]]+as[[:space:]]+[A-Z][A-Za-z0-9_]*' \
   "You wrote an object/array literal with a trailing 'as X' cast. Prefer 'satisfies X' (validates the literal against the type without widening/narrowing) or an explicit 'const val: X = {...}' annotation. Only keep 'as X' if you are genuinely asserting a shape TypeScript cannot infer (e.g., DOM narrowing)."

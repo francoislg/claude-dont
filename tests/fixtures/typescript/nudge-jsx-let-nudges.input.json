@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/Foo.tsx",
+    "content": "function Foo({ mode }: Props) {\n  let bodyContent: React.ReactNode;\n  let header: JSX.Element = <div />;\n  let footer: ReactNode | null = null;\n\n  if (mode === 'a') {\n    bodyContent = <A />;\n  } else {\n    bodyContent = <B />;\n  }\n  return <div>{header}{bodyContent}{footer}</div>;\n}\n"
+  }
+}
