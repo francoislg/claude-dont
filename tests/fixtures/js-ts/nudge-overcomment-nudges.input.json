@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "content": "// First we fetch the user from the database\n// then we map it to the response shape\nconst user = getUser();\n\n/*\n * This block explains what the loop below does\n * in painstaking detail.\n */\nfor (const x of items) process(x);\n"
+  }
+}

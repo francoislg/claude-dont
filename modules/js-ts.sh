@@ -227,5 +227,105 @@ run_rule "nudge-import-alias"     "regex" '^[[:space:]]*import[[:space:]].*\bas[
 run_rule "no-impl-alias"          "regex" '\bas[[:space:]]+[A-Za-z_][A-Za-z0-9_]*(Impl|Original|Orig|Raw|Inner)\b' \
   "Aliasing an identifier with an 'Impl/Original/Orig/Raw/Inner' suffix is not allowed (e.g. 'fetchX as fetchXImpl'). This is almost always an unnecessary wrapper: the same name was already in scope, so the import got aliased, then a local same-named function was defined to delegate to it. Drop the wrapper and use the original directly. If you genuinely need to wrap (telemetry, validation, behavior change), give the wrapper a meaningful name that reflects what it does (e.g. 'fetchXWithRetry', 'loggedFetchX') and import the original under its real name."
 
+# nudge-overcomment — flag added/edited comments. Prefer self-explanatory code
+# over prose. What triggers:
+#   • '//' line-leading comments (single or stacked)
+#   • '/* ... */' regular block comments, line-leading or inline, multi-line too
+#   • '*'-leading continuation/close lines ('* foo', '*/') so surgical edits to a
+#     multi-line comment body are caught even when the opener isn't in the edit
+# What does NOT trigger:
+#   • '//' inside URLs/strings ('https://...') and trailing '//' comments
+#   • JSDoc ('/** ... */') in a .js/.jsx file — JSDoc is how JS declares types,
+#     so it's legitimate there. In a .ts/.tsx file JSDoc DOES trigger (use real
+#     TS types instead). A bare '*' continuation is treated as JSDoc-style:
+#     flagged in TS, left alone in JS (we can't see the opener to be sure).
+# The rare cost is a false positive on a TS multiplication line-continuation
+# (e.g. '* b;'), which reads as a '*'-continuation line.
+if has_rule "nudge-overcomment" && [[ -n "$CONTENT" ]]; then
+  oc_is_ts=0
+  [[ "$FILE_PATH" =~ \.(ts|tsx)$ ]] && oc_is_ts=1
+
+  oc_matches=""
+  oc_run_len=0
+  oc_run_lines=""
+  oc_in_block=0
+  oc_block_jsdoc=0   # whether the currently-open block was opened with '/**'
+  oc_lineno=0
+
+  oc_flush() {
+    if [[ "$oc_run_len" -ge 1 ]]; then
+      if [[ -n "$oc_matches" ]]; then
+        oc_matches="$(printf '%s\n%s' "$oc_matches" "$oc_run_lines")"
+      else
+        oc_matches="$oc_run_lines"
+      fi
+    fi
+    oc_run_len=0
+    oc_run_lines=""
+  }
+
+  while IFS= read -r oc_line || [[ -n "$oc_line" ]]; do
+    oc_lineno=$((oc_lineno + 1))
+    oc_trimmed="${oc_line#"${oc_line%%[![:space:]]*}"}"
+    oc_is_comment=0
+    if [[ "$oc_in_block" -eq 1 ]]; then
+      # Regular blocks always count; JSDoc blocks only in TS.
+      if [[ "$oc_block_jsdoc" -eq 0 || "$oc_is_ts" -eq 1 ]]; then
+        oc_is_comment=1
+      fi
+      case "$oc_line" in *"*/"*) oc_in_block=0 ;; esac
+    else
+      case "$oc_trimmed" in
+        //*) oc_is_comment=1 ;;
+        '/**'*)
+          # JSDoc opener — fine in JS, flagged in TS.
+          [[ "$oc_is_ts" -eq 1 ]] && oc_is_comment=1
+          case "$oc_line" in
+            *"*/"*) ;;                       # closes on this line
+            *) oc_in_block=1; oc_block_jsdoc=1 ;;
+          esac
+          ;;
+        '/*'*)
+          # Regular block opener — always flagged.
+          oc_is_comment=1
+          case "$oc_line" in
+            *"*/"*) ;;
+            *) oc_in_block=1; oc_block_jsdoc=0 ;;
+          esac
+          ;;
+        '*'*)
+          # Bare continuation/close of a multi-line comment (surgical edit).
+          # Treated as JSDoc-style: flagged in TS, left alone in JS.
+          [[ "$oc_is_ts" -eq 1 ]] && oc_is_comment=1
+          ;;
+        *)
+          # Not line-leading: catch an inline '/* ... */' anywhere on the line.
+          case "$oc_line" in
+            *"/**"*"*/"*) [[ "$oc_is_ts" -eq 1 ]] && oc_is_comment=1 ;;
+            *"/*"*"*/"*) oc_is_comment=1 ;;
+          esac
+          ;;
+      esac
+    fi
+    if [[ "$oc_is_comment" -eq 1 ]]; then
+      oc_run_len=$((oc_run_len + 1))
+      if [[ -n "$oc_run_lines" ]]; then
+        oc_run_lines="$(printf '%s\n%s' "$oc_run_lines" "$oc_lineno:$oc_line")"
+      else
+        oc_run_lines="$oc_lineno:$oc_line"
+      fi
+    else
+      oc_flush
+    fi
+  done <<< "$CONTENT"
+  oc_flush
+
+  if [[ -n "$oc_matches" ]]; then
+    add "nudge-overcomment" \
+      "A code comment was added. Don't overcomment — prefer code that explains itself (clear names, small functions, explicit types). Often the right move is to just remove the comment. Keep comments only for the 'why' the code can't express (a non-obvious tradeoff, a workaround's reason, a link to context); if it just restates the code, delete it. A comment must explain the code as it stands now — never narrate change ('was X, now Y', 'removed the old...', 'previously...'); that history belongs in version control, not the source, and adds no value to the present code. JSDoc that documents types is fine in a .js file, but in TypeScript use real types instead of JSDoc." \
+      "$oc_matches"
+  fi
+fi
+
 emit
 exit 0

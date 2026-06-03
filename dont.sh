@@ -23,6 +23,7 @@ INPUT="$(cat)"
 # 2. Extract the bits we need
 TOOL="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty')"
 CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // empty')"
+SESSION_ID="$(printf '%s' "$INPUT" | jq -r '.session_id // empty')"
 
 if [[ -z "$TOOL" ]]; then
   exit 0
@@ -182,9 +183,40 @@ if [[ "$BLOCK_COUNT" -gt 0 ]]; then
 fi
 
 if [[ "$NUDGE_COUNT" -gt 0 ]]; then
-  body="$(printf '%s' "$ALL_VIOLATIONS" | jq -r '
-    [.[] | select(.severity == "nudge") | "[\(.rule)] \(.message)"] | join("\n\n")
-  ')"
+  # Once-per-session dedup: a nudge's full rationale is injected into context the
+  # FIRST time its rule fires in a session; later occurrences emit a one-line
+  # pointer instead. Keyed by .session_id via marker files under TMPDIR. When no
+  # session id is available we can't dedup, so every occurrence stays full.
+  nudge_dir=""
+  if [[ -n "$SESSION_ID" ]]; then
+    nudge_dir="${TMPDIR:-/tmp}/claude-dont/${SESSION_ID//[^A-Za-z0-9_-]/_}"
+    mkdir -p "$nudge_dir" 2>/dev/null || nudge_dir=""
+  fi
+
+  body=""
+  while IFS= read -r rule; do
+    [[ -z "$rule" ]] && continue
+
+    # On a repeat in the same session, emit the pointer without fetching the
+    # (discarded) full message — saves a jq spawn on the hot path.
+    part=""
+    if [[ -n "$nudge_dir" && -f "$nudge_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" ]]; then
+      part="[$rule] (full guidance was given earlier this session — the same applies here)"
+    else
+      msg="$(printf '%s' "$ALL_VIOLATIONS" | jq -r --arg r "$rule" \
+        '[.[] | select(.severity == "nudge" and .rule == $r) | .message][0]')"
+      [[ -n "$nudge_dir" ]] && : > "$nudge_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" 2>/dev/null
+      part="[$rule] $msg"
+    fi
+
+    if [[ -n "$body" ]]; then
+      body="$(printf '%s\n\n%s' "$body" "$part")"
+    else
+      body="$part"
+    fi
+  done < <(printf '%s' "$ALL_VIOLATIONS" | jq -r \
+    '[.[] | select(.severity == "nudge") | .rule] | unique | .[]')
+
   emit_context "NUDGE" "$body"
 fi
 

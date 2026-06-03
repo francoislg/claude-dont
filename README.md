@@ -107,6 +107,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
 | `nudge-skipped-test`      | `describe.skip(` / `test.skip(` / `it.skip(` / `xdescribe(` / `xit(` / `xtest(` — fix or delete instead | nudge |
 | `nudge-import-alias`      | `import { x as y } from ...` — asks whether the rename is needed (excludes `import * as foo`) | nudge |
+| `nudge-overcomment`       | Added/edited comments — `//` lines, `/* */` blocks (line-leading or inline, single or multi-line), and `*` continuation lines (catches surgical edits to a comment body) — prefer self-explanatory code. Ignores `//` in URLs/strings and trailing `//`. JSDoc (`/** */`) is fine in `.js` but flagged in `.ts` (use real types) | nudge |
 | `no-underscore-rename`    | `foo` → `_foo` rename in an Edit — suppresses unused-var lint instead of removing the variable | block |
 | `no-impl-alias`           | `X as XImpl/XOriginal/XOrig/XRaw/XInner` import alias — almost always an unnecessary wrapper | block |
 
@@ -150,6 +151,8 @@ Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists
 - **nudge** — exit 0, tool call proceeds, message injected as `additionalContext` for Claude's next turn.
 
 Multiple violations from a single tool call are bundled into one response.
+
+Nudges are deduped per session: a rule's full guidance is injected the first time it fires in a session (keyed by `session_id`), and later occurrences emit a one-line pointer instead — saving context budget. Blocks are never deduped.
 
 ## Tests
 

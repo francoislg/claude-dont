@@ -28,6 +28,7 @@
       "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
       "nudge-skipped-test":     { "enabled": true, "severity": "nudge" },
       "nudge-import-alias":     { "enabled": true, "severity": "nudge" },
+      "nudge-overcomment":      { "enabled": true, "severity": "nudge" },
       "no-underscore-rename":   { "enabled": true, "severity": "block" },
       "no-impl-alias":          { "enabled": true, "severity": "block" }
     }
