@@ -193,8 +193,17 @@ if [[ "$NUDGE_COUNT" -gt 0 ]]; then
     mkdir -p "$nudge_dir" 2>/dev/null || nudge_dir=""
   fi
 
+  # Read the unique nudge rules via a here-string (NOT process substitution):
+  # on Windows Git Bash, '< <(...)' introduces CRLF so 'read' keeps a trailing
+  # '\r', which then breaks the rule-equality lookup below (message comes back
+  # null). The here-string pattern is what the modules use and is CRLF-safe; we
+  # also strip a stray '\r' defensively.
+  nudge_rules="$(printf '%s' "$ALL_VIOLATIONS" | jq -r \
+    '[.[] | select(.severity == "nudge") | .rule] | unique | .[]')"
+
   body=""
   while IFS= read -r rule; do
+    rule="${rule%$'\r'}"
     [[ -z "$rule" ]] && continue
 
     # On a repeat in the same session, emit the pointer without fetching the
@@ -214,8 +223,7 @@ if [[ "$NUDGE_COUNT" -gt 0 ]]; then
     else
       body="$part"
     fi
-  done < <(printf '%s' "$ALL_VIOLATIONS" | jq -r \
-    '[.[] | select(.severity == "nudge") | .rule] | unique | .[]')
+  done <<< "$nudge_rules"
 
   emit_context "NUDGE" "$body"
 fi

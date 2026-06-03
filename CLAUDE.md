@@ -8,12 +8,13 @@ Guidance for Claude Code when working in this repository.
 
 ## Hard rules for all code in this repo
 
-1. **Multi-platform.** Every script must work on macOS (default bash 3.2 + BSD userland) **and** Linux (bash 4+/5+ + GNU userland), and inside Git Bash / WSL on Windows. CI runs `ubuntu-latest` and `macos-latest`; both must pass.
+1. **Multi-platform.** Every script must work on macOS (default bash 3.2 + BSD userland) **and** Linux (bash 4+/5+ + GNU userland), and inside Git Bash / WSL on Windows. CI runs `ubuntu-latest`, `macos-latest`, **and `windows-latest` (Git Bash)** — all three must pass.
    - Use `#!/usr/bin/env bash` (never `#!/bin/bash`).
    - No bash 4+ features: no associative arrays (`declare -A`), no `${var,,}` lowercase expansion, no `&>` redirection, no `mapfile`/`readarray`.
    - No GNU-only flags: no `grep -P`, no `grep -I` (use `--binary-files=without-match`), no `sed -i ...` without an extension argument, no `xargs -P` without checking BSD support.
    - No reliance on coreutils-only flags. Stick to the POSIX subset for `cut`, `tr`, `sort`, `head`, `tail`.
    - Path separators: assume `/` everywhere. Don't hand-roll Windows path handling.
+   - **CRLF on Windows.** Don't read command/jq output via process substitution (`while read ... done < <(cmd)`) when the value is fed back into another command — Git Bash can introduce a trailing `\r` that breaks string comparisons. Use a here-string (`done <<< "$var"`, the pattern modules use) and strip stray CR defensively (`x="${x%$'\r'}"`).
 
 2. **Zero new dependencies.** The only allowed external tools are:
    - `bash` (3.2+)
@@ -36,8 +37,11 @@ Guidance for Claude Code when working in this repository.
 dont.sh                        # entry point
 lib/load-config.sh             # 3-layer config merge + rule-value normalization
 modules/
-  globalTools.sh               # rules in the `globalTools` config category
-  typescript.sh                # rules in the `typescript` config category
+  globalTools.sh               # rules in the `globalTools` config category (Bash)
+  js-ts.sh                     # `js-ts` category (.ts/.tsx/.js/.jsx)
+  typescript.sh                # `typescript` category (.ts/.tsx only)
+  sveltekit.sh                 # `sveltekit` category (.svelte*, SvelteKit projects)
+  terraform.sh                 # `terraform` category (.tf/.tfvars)
 dont-config.default.json       # shipped defaults; deepest merge layer
 tests/run-tests.sh
 tests/fixtures/<module>/<name>.input.json + .expect.json (+ .config.json, .files/)
@@ -59,7 +63,7 @@ Modules never decide block-vs-nudge themselves — that's set per-rule in the co
 
 ## Adding a rule
 
-1. Add it to `dont-config.default.json` under the right category, with `enabled`, `severity`, `tool`.
+1. Add it to `dont-config.default.json` under the right category, with `enabled` and `severity` (plus any rule-specific keys, e.g. `maxLines`).
 2. Implement the check in the matching `modules/<category>.sh`, gated on `has_rule "<name>"`.
 3. Add at least one fixture pair in `tests/fixtures/<category>/`.
 4. Document it in `README.md` under the rule list.
