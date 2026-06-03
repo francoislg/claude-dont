@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/main.tf",
+    "content": "resource \"aws_s3_bucket\" \"app\" {\n  bucket = \"app-bucket\" # trailing note\n  tags  = { name = \"id#1\" }\n}\n"
+  }
+}

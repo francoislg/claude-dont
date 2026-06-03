@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-overcomment", "describe"],
+  "stdoutNotContains": ["BLOCKED"]
+}

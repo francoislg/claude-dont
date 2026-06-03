@@ -145,6 +145,12 @@ Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists
 | `no-window-location`  | `window.location` — use the `page` object from `$app/state` (or the `$page` store from `$app/stores`) | block |
 | `no-svelte-ignore`    | `svelte-ignore` directives — fix the underlying compiler warning (usually an a11y issue) instead  | block             |
 
+### `terraform` — applies to `Edit`/`Write` on `.tf` / `.tfvars` files
+
+| Rule                  | What it nudges                                                                                    | Default severity |
+|-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
+| `nudge-overcomment`   | Added/edited comments — `#` and `//` lines, `/* */` blocks (line-leading or inline), and `*` continuation lines — prefer self-explanatory config. Ignores `#`/`//` in strings and trailing comments | nudge |
+
 ## Block vs. nudge
 
 - **block** — exit 2, tool call refused, message shown to Claude.

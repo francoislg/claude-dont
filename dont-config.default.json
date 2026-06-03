@@ -62,5 +62,11 @@
       "no-window-location":     { "enabled": true, "severity": "block" },
       "no-svelte-ignore":       { "enabled": true, "severity": "block" }
     }
+  },
+  "terraform": {
+    "enabled": true,
+    "rules": {
+      "nudge-overcomment":      { "enabled": true, "severity": "nudge" }
+    }
   }
 }
