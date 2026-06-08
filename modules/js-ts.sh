@@ -346,6 +346,9 @@ if has_rule "nudge-long-lines" && [[ -n "$CONTENT" ]]; then
   ll_lineno=0
   while IFS= read -r ll_line || [[ -n "$ll_line" ]]; do
     ll_lineno=$((ll_lineno + 1))
+    # Strip a trailing CR: on Windows jq emits CRLF, so each CONTENT line keeps
+    # a '\r' that would otherwise count as whitespace / inflate the length.
+    ll_line="${ll_line%$'\r'}"
     ll_len=${#ll_line}
     [[ "$ll_len" -le "$max_len" ]] && continue
     # Skip single-token lines (no whitespace once leading indent is removed).
