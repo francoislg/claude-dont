@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "content": "const greeting = \"Hello there, this is a deliberately long greeting message that comfortably exceeds one hundred and twenty characters in total.\";\nconst x = 1;\n"
+  }
+}

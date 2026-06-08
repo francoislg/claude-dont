@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "content": "function strip(entry: Entry) {\n  delete entry.blocks;\n  return entry;\n}\n"
+  }
+}

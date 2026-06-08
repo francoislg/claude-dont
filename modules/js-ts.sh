@@ -117,6 +117,13 @@ run_rule "no-jsdoc-any"           "regex" '@[A-Za-z]+[[:space:]]*\{[^}]*\bany\b'
 run_rule "no-await-import"        "regex" 'await\s+import\(' \
   "'await import()' dynamic imports are not allowed. Use regular static imports at the top of the file instead."
 
+# no-delete — block the 'delete' operator ('delete obj.prop', 'delete obj[k]').
+# Matched only when 'delete' is a standalone keyword followed by whitespace and
+# preceded by a non-identifier, non-dot char — so Map/Set '.delete(' method
+# calls, 'deleteFoo' identifiers, and 'delete:' object keys are NOT matched.
+run_rule "no-delete"              "regex" '(^|[^.A-Za-z0-9_$])delete[[:space:]]' \
+  "The 'delete' operator is not allowed. To drop a key, build a new object without it and use that: 'const { blocks, ...rest } = entry; return rest;'. To clear a value on an object you're keeping, assign 'obj.key = undefined'. For dynamic keys, omit with a helper: 'const { [key]: _omit, ...rest } = obj;'. (Map/Set '.delete()' method calls are fine — only the 'delete' operator is blocked.) Avoid 'delete' because it mutates in place and deopts the object's shape. If you genuinely need it, add it back manually — this rule won't insert it for you — or disable the rule per-project in .claude/dont-config.json."
+
 run_rule "no-void-var"            "regex" '^\s*void\s+[A-Za-z_][A-Za-z0-9_]*\s*;' \
   "'void someVar;' statements are not allowed. This pattern is typically used to suppress 'unused variable' errors, which masks the real problem. For exhaustiveness checks, use 'assertNever(value)' or equivalent. If the variable is genuinely unused, remove it."
 
@@ -324,6 +331,43 @@ if has_rule "nudge-overcomment" && [[ -n "$CONTENT" ]]; then
     add "nudge-overcomment" \
       "A code comment was added. Don't overcomment — prefer code that explains itself (clear names, small functions, explicit types). Often the right move is to just remove the comment. Keep comments only for the 'why' the code can't express (a non-obvious tradeoff, a workaround's reason, a link to context); if it just restates the code, delete it. A comment must explain the code as it stands now — never narrate change ('was X, now Y', 'removed the old...', 'previously...'); that history belongs in version control, not the source, and adds no value to the present code. JSDoc that documents types is fine in a .js file, but in TypeScript use real types instead of JSDoc." \
       "$oc_matches"
+  fi
+fi
+
+# nudge-long-lines — flag added lines longer than 'maxLineLength' (default 120).
+# Long lines are hard to read and review; most can be broken across newlines.
+# Skipped: lines with no internal whitespace after indentation (a single
+# unbreakable token — long URL, hash, identifier — nothing to split on). The
+# offending list shows '<lineno>: (<len> chars) <preview>' rather than dumping
+# the full line, so the nudge itself stays readable.
+if has_rule "nudge-long-lines" && [[ -n "$CONTENT" ]]; then
+  max_len="$(echo "$INPUT" | jq -r '._enabledRules[]? | select(.name == "nudge-long-lines") | .config.maxLineLength // 120')"
+  ll_matches=""
+  ll_lineno=0
+  while IFS= read -r ll_line || [[ -n "$ll_line" ]]; do
+    ll_lineno=$((ll_lineno + 1))
+    ll_len=${#ll_line}
+    [[ "$ll_len" -le "$max_len" ]] && continue
+    # Skip single-token lines (no whitespace once leading indent is removed).
+    ll_trimmed="${ll_line#"${ll_line%%[![:space:]]*}"}"
+    case "$ll_trimmed" in
+      *[[:space:]]*) ;;
+      *) continue ;;
+    esac
+    ll_preview="${ll_line:0:80}"
+    [[ "$ll_len" -gt 80 ]] && ll_preview="${ll_preview}..."
+    ll_entry="$ll_lineno: ($ll_len chars) $ll_preview"
+    if [[ -n "$ll_matches" ]]; then
+      ll_matches="$(printf '%s\n%s' "$ll_matches" "$ll_entry")"
+    else
+      ll_matches="$ll_entry"
+    fi
+  done <<< "$CONTENT"
+
+  if [[ -n "$ll_matches" ]]; then
+    add "nudge-long-lines" \
+      "A long line was added (over $max_len chars). Long lines are hard to read and review — prefer breaking them across newlines. Wrap long comments onto multiple lines; split long strings with a template literal or an array join (e.g. ['Part one.', 'Part two.'].join(' ')) across lines; break method chains one '.call()' per line; put each argument, array item, or object property on its own line. Keep a single long line only when splitting genuinely hurts clarity (an unbreakable URL, or a line a formatter would reflow anyway)." \
+      "$ll_matches"
   fi
 fi
 

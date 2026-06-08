@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/foo.ts",
+    "content": "const deleted = cache.delete(key);\nawait repo.deleteUser(id);\nconst opts = { delete: true };\nconst { blocks, ...rest } = entry;\n"
+  }
+}

@@ -97,6 +97,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 |---------------------------|------------------------------------------------------|-------------------|
 | `no-jsdoc-any`            | JSDoc `@type {any}`, `@param {any}`, `@returns {any}`, etc. | block      |
 | `no-await-import`         | `await import(...)`                                  | block             |
+| `no-delete`               | The `delete` operator (`delete obj.prop`) — build a new object without the key instead. Map/Set `.delete()` calls are allowed | block |
 | `no-void-var`             | `void someVar;` (suppresses unused-var)              | block             |
 | `no-iife`                 | `})(` immediately-invoked function expressions — extract to a named function | block |
 | `no-reexport`             | A comment containing "re-export" / "re export" — re-export shims hide coupling | block |
@@ -108,6 +109,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `nudge-skipped-test`      | `describe.skip(` / `test.skip(` / `it.skip(` / `xdescribe(` / `xit(` / `xtest(` — fix or delete instead | nudge |
 | `nudge-import-alias`      | `import { x as y } from ...` — asks whether the rename is needed (excludes `import * as foo`) | nudge |
 | `nudge-overcomment`       | Added/edited comments — `//` lines, `/* */` blocks (line-leading or inline, single or multi-line), and `*` continuation lines (catches surgical edits to a comment body) — prefer self-explanatory code. Ignores `//` in URLs/strings and trailing `//`. JSDoc (`/** */`) is fine in `.js` but flagged in `.ts` (use real types) | nudge |
+| `nudge-long-lines`        | A line longer than `maxLineLength` (default 120) — suggests breaking it across newlines for readability. Skips single-token lines (no internal whitespace, e.g. a long URL) that can't be split | nudge |
 | `no-underscore-rename`    | `foo` → `_foo` rename in an Edit — suppresses unused-var lint instead of removing the variable | block |
 | `no-impl-alias`           | `X as XImpl/XOriginal/XOrig/XRaw/XInner` import alias — almost always an unnecessary wrapper | block |
 

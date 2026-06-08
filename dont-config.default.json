@@ -18,6 +18,7 @@
     "rules": {
       "no-jsdoc-any":           { "enabled": true, "severity": "block" },
       "no-await-import":        { "enabled": true, "severity": "block" },
+      "no-delete":              { "enabled": true, "severity": "block" },
       "no-void-var":            { "enabled": true, "severity": "block" },
       "no-iife":                { "enabled": true, "severity": "block" },
       "no-reexport":            { "enabled": true, "severity": "block" },
@@ -29,6 +30,7 @@
       "nudge-skipped-test":     { "enabled": true, "severity": "nudge" },
       "nudge-import-alias":     { "enabled": true, "severity": "nudge" },
       "nudge-overcomment":      { "enabled": true, "severity": "nudge" },
+      "nudge-long-lines":       { "enabled": true, "severity": "nudge", "maxLineLength": 120 },
       "no-underscore-rename":   { "enabled": true, "severity": "block" },
       "no-impl-alias":          { "enabled": true, "severity": "block" }
     }

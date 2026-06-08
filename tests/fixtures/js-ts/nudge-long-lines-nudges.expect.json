@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdoutContains": ["nudge-long-lines", "chars"],
+  "stdoutNotContains": ["BLOCKED"]
+}
