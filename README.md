@@ -104,6 +104,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `no-eslint-disable`       | `// eslint-disable` / `/* eslint-disable */` — fix the underlying lint issue | block |
 | `no-oxlint-disable`       | `// oxlint-disable` / `/* oxlint-disable */` — fix the underlying lint issue | block |
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
+| `no-empty-catch`          | `.catch(() => {})` with an empty body — silently swallows a promise rejection; log, rethrow, or handle it | block |
 | `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
 | `nudge-skipped-test`      | `describe.skip(` / `test.skip(` / `it.skip(` / `xdescribe(` / `xit(` / `xtest(` — fix or delete instead | nudge |

@@ -143,6 +143,14 @@ run_rule "no-reexport"            "regex" '^[[:space:]]*(//|/\*|\*).*[Rr]e[- ]?e
 run_rule "no-void-expr"           "regex" '(^|[^A-Za-z0-9_$])void([[:space:]]*\(|[[:space:]]+[A-Za-z_$])' \
   "The 'void' operator is not allowed (both 'void (...)' and 'void someFn()' forms). It is almost always used to silently discard a promise or expression result, which hides unhandled rejections and lost return values. Common case: '() => void asyncFn()' in a callback — drop the 'void' and use a block body that handles the promise: '() => { asyncFn().catch(logError); }'. For fire-and-forget, attach explicit '.catch()' handling or extract a named function that owns the error path. For sync functions, a block body '() => { fn(); }' is equivalent and clearer. If you're suppressing an unused-expression lint, fix the underlying issue instead."
 
+# no-empty-catch — '.catch(() => {})' with an empty handler body silently swallows
+# a promise rejection. Covers arrow handlers (parenthesized, bare-param, or async)
+# and 'function' expressions whose body is empty (whitespace only). A handler with
+# any statement in its body does NOT match. Multi-line empty bodies (a '{' and '}'
+# on separate lines) are not caught — grep is line-oriented.
+run_rule "no-empty-catch"         "regex" '\.catch\([[:space:]]*((async[[:space:]]+)?(\([^)]*\)|[A-Za-z_$][A-Za-z0-9_$]*)[[:space:]]*=>|function[[:space:]]*[A-Za-z0-9_]*[[:space:]]*\([^)]*\))[[:space:]]*\{[[:space:]]*\}' \
+  "An empty '.catch(() => {})' handler is not allowed — it silently swallows the promise rejection, so a failure disappears with no log, no rethrow, and no recovery. Handle the error: log it ('.catch((err) => logError(err))'), rethrow after cleanup, or convert it into a value the caller can act on. If the rejection is genuinely expected and safe to ignore, say so explicitly with a comment explaining why and still reference the error (e.g. '.catch((err) => { /* offline is fine here — see TICKET-123 */ })') rather than dropping it into a void body."
+
 # eslint-disable comments — almost always suppressing a real issue. Fix the
 # underlying lint violation instead of silencing the rule.
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \

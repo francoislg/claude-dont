@@ -25,6 +25,7 @@
       "no-eslint-disable":      { "enabled": true, "severity": "block" },
       "no-oxlint-disable":      { "enabled": true, "severity": "block" },
       "no-void-expr":           { "enabled": true, "severity": "block" },
+      "no-empty-catch":         { "enabled": true, "severity": "block" },
       "no-large-file":          { "enabled": true, "severity": "block", "maxLines": 500 },
       "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
       "nudge-skipped-test":     { "enabled": true, "severity": "nudge" },
