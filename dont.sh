@@ -153,6 +153,18 @@ done < "$GROUPS_FILE"
 BLOCK_COUNT="$(printf '%s' "$ALL_VIOLATIONS" | jq '[.[] | select(.severity == "block")] | length')"
 NUDGE_COUNT="$(printf '%s' "$ALL_VIOLATIONS" | jq '[.[] | select(.severity == "nudge")] | length')"
 
+# Per-session marker dir, shared by the block + nudge dedup paths below. The
+# FIRST time a rule fires in a session we inject its full guidance; later
+# occurrences emit a one-line pointer instead. Keyed by .session_id via marker
+# files under TMPDIR (block- and nudge- prefixed so a same-named rule can't
+# collide across severities). When no session id is available we can't dedup, so
+# every occurrence stays full.
+marker_dir=""
+if [[ -n "$SESSION_ID" ]]; then
+  marker_dir="${TMPDIR:-/tmp}/claude-dont/${SESSION_ID//[^A-Za-z0-9_-]/_}"
+  mkdir -p "$marker_dir" 2>/dev/null || marker_dir=""
+fi
+
 emit_context() {
   local kind="$1"   # "BLOCK" or "NUDGE"
   local body="$2"
@@ -166,9 +178,34 @@ emit_context() {
 }
 
 if [[ "$BLOCK_COUNT" -gt 0 ]]; then
-  body="$(printf '%s' "$ALL_VIOLATIONS" | jq -r '
-    [.[] | select(.severity == "block") | "[\(.rule)] \(.message)"] | join("\n\n")
-  ')"
+  # Build the block body per-rule with once-per-session dedup (mirrors the nudge
+  # path below). The stderr summary further down stays full regardless, so a
+  # deduped repeat still shows the rule + first line of its message.
+  block_rules="$(printf '%s' "$ALL_VIOLATIONS" | jq -r \
+    '[.[] | select(.severity == "block") | .rule] | unique | .[]')"
+
+  body=""
+  while IFS= read -r rule; do
+    rule="${rule%$'\r'}"
+    [[ -z "$rule" ]] && continue
+
+    part=""
+    if [[ -n "$marker_dir" && -f "$marker_dir/block-${rule//[^A-Za-z0-9_-]/_}" ]]; then
+      part="[$rule] (blocked earlier this session — the same issue and guidance apply here)"
+    else
+      msg="$(printf '%s' "$ALL_VIOLATIONS" | jq -r --arg r "$rule" \
+        '[.[] | select(.severity == "block" and .rule == $r) | .message] | join("\n\n")')"
+      [[ -n "$marker_dir" ]] && : > "$marker_dir/block-${rule//[^A-Za-z0-9_-]/_}" 2>/dev/null
+      part="[$rule] $msg"
+    fi
+
+    if [[ -n "$body" ]]; then
+      body="$(printf '%s\n\n%s' "$body" "$part")"
+    else
+      body="$part"
+    fi
+  done <<< "$block_rules"
+
   emit_context "BLOCK" "$body"
   echo "claude-dont: blocked ($BLOCK_COUNT issue$([[ $BLOCK_COUNT -ne 1 ]] && echo s))" >&2
   # Surface the actual violations on stderr too — Claude Code's UI typically
@@ -183,15 +220,9 @@ if [[ "$BLOCK_COUNT" -gt 0 ]]; then
 fi
 
 if [[ "$NUDGE_COUNT" -gt 0 ]]; then
-  # Once-per-session dedup: a nudge's full rationale is injected into context the
-  # FIRST time its rule fires in a session; later occurrences emit a one-line
-  # pointer instead. Keyed by .session_id via marker files under TMPDIR. When no
-  # session id is available we can't dedup, so every occurrence stays full.
-  nudge_dir=""
-  if [[ -n "$SESSION_ID" ]]; then
-    nudge_dir="${TMPDIR:-/tmp}/claude-dont/${SESSION_ID//[^A-Za-z0-9_-]/_}"
-    mkdir -p "$nudge_dir" 2>/dev/null || nudge_dir=""
-  fi
+  # Once-per-session dedup (shared marker_dir computed above): a nudge's full
+  # rationale is injected the FIRST time its rule fires in a session; later
+  # occurrences emit a one-line pointer instead.
 
   # Read the unique nudge rules via a here-string (NOT process substitution):
   # on Windows Git Bash, '< <(...)' introduces CRLF so 'read' keeps a trailing
@@ -209,12 +240,12 @@ if [[ "$NUDGE_COUNT" -gt 0 ]]; then
     # On a repeat in the same session, emit the pointer without fetching the
     # (discarded) full message — saves a jq spawn on the hot path.
     part=""
-    if [[ -n "$nudge_dir" && -f "$nudge_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" ]]; then
+    if [[ -n "$marker_dir" && -f "$marker_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" ]]; then
       part="[$rule] (full guidance was given earlier this session — the same applies here)"
     else
       msg="$(printf '%s' "$ALL_VIOLATIONS" | jq -r --arg r "$rule" \
         '[.[] | select(.severity == "nudge" and .rule == $r) | .message][0]')"
-      [[ -n "$nudge_dir" ]] && : > "$nudge_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" 2>/dev/null
+      [[ -n "$marker_dir" ]] && : > "$marker_dir/nudge-${rule//[^A-Za-z0-9_-]/_}" 2>/dev/null
       part="[$rule] $msg"
     fi
 
