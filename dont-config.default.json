@@ -71,5 +71,17 @@
     "rules": {
       "nudge-overcomment":      { "enabled": true, "severity": "nudge" }
     }
+  },
+  "shell": {
+    "enabled": true,
+    "rules": {
+      "nudge-overcomment":      { "enabled": true, "severity": "nudge" }
+    }
+  },
+  "json": {
+    "enabled": true,
+    "rules": {
+      "nudge-overcomment":      { "enabled": true, "severity": "nudge" }
+    }
   }
 }

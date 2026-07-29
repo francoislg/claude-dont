@@ -154,6 +154,18 @@ Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists
 |-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
 | `nudge-overcomment`   | Added/edited comments — `#` and `//` lines, `/* */` blocks (line-leading or inline), and `*` continuation lines — prefer self-explanatory config. Ignores `#`/`//` in strings and trailing comments | nudge |
 
+### `shell` — applies to `Edit`/`Write` on `.sh` files
+
+| Rule                  | What it nudges                                                                                    | Default severity |
+|-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
+| `nudge-overcomment`   | Added/edited comments — `#` line-leading comments (single or stacked) — prefer self-explanatory code. Ignores the `#!` shebang, `#` in strings, and trailing `#` comments | nudge |
+
+### `json` — applies to `Edit`/`Write` on `.json` files
+
+| Rule                  | What it nudges                                                                                    | Default severity |
+|-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
+| `nudge-overcomment`   | Added/edited comments — `//` lines, `/* */` blocks (line-leading or inline), and `*` continuation lines — prefer self-explanatory config. Comments only parse in JSONC (e.g. `tsconfig.json`). Ignores `//` in strings and trailing comments | nudge |
+
 ## Block vs. nudge
 
 - **block** — exit 2, tool call refused, message shown to Claude.

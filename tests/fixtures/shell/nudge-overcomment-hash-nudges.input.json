@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/deploy.sh",
+    "content": "#!/usr/bin/env bash\n# uploads the build artifacts to the bucket\naws s3 cp ./dist s3://app-bucket --recursive\n"
+  }
+}
