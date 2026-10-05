@@ -1,0 +1,8 @@
+{
+  "exitCode": 2,
+  "stdoutContains": [
+    "no-banned-words",
+    "acme",
+    "1:Welcome"
+  ]
+}

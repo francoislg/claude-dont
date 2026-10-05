@@ -42,6 +42,7 @@ modules/
   typescript.sh                # `typescript` category (.ts/.tsx only)
   sveltekit.sh                 # `sveltekit` category (.svelte*, SvelteKit projects)
   terraform.sh                 # `terraform` category (.tf/.tfvars)
+  banned-words.sh              # `banned-words` category (any file + opt-in Bash; word list from user config only)
 dont-config.default.json       # shipped defaults; deepest merge layer
 tests/run-tests.sh
 tests/fixtures/<module>/<name>.input.json + .expect.json (+ .config.json, .files/)
@@ -56,7 +57,8 @@ The module file name == the category key in the config. Adding a new category me
 Each module:
 - reads JSON from stdin (the original hook payload + an injected `_enabledRules` array of `{name, severity, ...}`)
 - decides which rules to evaluate based on `_enabledRules`
-- emits JSON on stdout: `{ "violations": [ { "rule": "name", "severity": "block"|"nudge", "message": "..." } ] }`
+- emits JSON on stdout: `{ "violations": [ { "rule": "name", "severity": "block"|"nudge", "message": "...", "detail": "..." } ] }`
+  - `detail` (optional, blocks only) is call-specific context (which word, which line) that is still shown when a repeat block's `message` is deduped to a one-line pointer, and leads the stderr summary
 - exits `0` on success; non-zero is treated as a module bug and ignored
 
 Modules never decide block-vs-nudge themselves — that's set per-rule in the config and surfaces via `_enabledRules[].severity`. The dispatcher aggregates and emits the final `hookSpecificOutput` response.

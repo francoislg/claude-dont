@@ -1,0 +1,8 @@
+{
+  "hook_event_name": "PreToolUse",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "git commit -m \"fix secretcorp login\""
+  }
+}

@@ -166,6 +166,31 @@ Only fires inside SvelteKit projects. Detection: `package.json` in the cwd lists
 |-----------------------|---------------------------------------------------------------------------------------------------|-------------------|
 | `nudge-overcomment`   | Added/edited comments — `//` lines, `/* */` blocks (line-leading or inline), and `*` continuation lines — prefer self-explanatory config. Comments only parse in JSONC (e.g. `tsconfig.json`). Ignores `//` in strings and trailing comments | nudge |
 
+### `banned-words` — applies to `Write` / `Edit` / `NotebookEdit` on any file, and optionally `Bash`
+
+Inactive until you list words in your own config — the shipped list is empty.
+
+| Rule              | What it blocks                                                                                         | Default severity |
+|-------------------|--------------------------------------------------------------------------------------------------------|-------------------|
+| `no-banned-words` | Any listed word added to a file's content, or in the path of a file being created; in `Bash` commands too when `"bash": true` | block |
+
+Matching is case-insensitive substring. `Edit`/`Write` block only on occurrences the call *adds* (count in the new text minus the old text / existing file), so editing a file that already contains a word still works. Each entry is a string or `{ "match": "...", "suggest": "..." }`:
+
+```json
+{
+  "banned-words": {
+    "rules": {
+      "no-banned-words": {
+        "words": [{ "match": "secretcorp", "suggest": "acme" }],
+        "bash": true
+      }
+    }
+  }
+}
+```
+
+`words` arrays don't merge across layers — the deepest layer's list replaces the others. To keep a per-project list out of version control, add `.claude/dont-config.json` to that repo's `.git/info/exclude`.
+
 ## Block vs. nudge
 
 - **block** — exit 2, tool call refused, message shown to Claude.

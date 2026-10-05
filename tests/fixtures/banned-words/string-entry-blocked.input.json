@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/notes.md",
+    "content": "Welcome to SecretCorp!\n"
+  }
+}

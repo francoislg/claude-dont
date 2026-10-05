@@ -83,5 +83,11 @@
     "rules": {
       "nudge-overcomment":      { "enabled": true, "severity": "nudge" }
     }
+  },
+  "banned-words": {
+    "enabled": true,
+    "rules": {
+      "no-banned-words":        { "enabled": true, "severity": "block", "words": [], "bash": false }
+    }
   }
 }

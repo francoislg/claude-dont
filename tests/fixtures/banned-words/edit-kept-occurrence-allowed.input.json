@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/notes.md",
+    "old_string": "Hello secretcorp.",
+    "new_string": "Hello secretcorp, welcome."
+  }
+}

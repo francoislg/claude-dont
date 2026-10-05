@@ -192,9 +192,12 @@ if [[ "$BLOCK_COUNT" -gt 0 ]]; then
     part=""
     if [[ -n "$marker_dir" && -f "$marker_dir/block-${rule//[^A-Za-z0-9_-]/_}" ]]; then
       part="[$rule] (blocked earlier this session — the same issue and guidance apply here)"
+      detail="$(printf '%s' "$ALL_VIOLATIONS" | jq -r --arg r "$rule" \
+        '[.[] | select(.severity == "block" and .rule == $r) | .detail // empty] | join("\n\n")')"
+      [[ -n "$detail" ]] && part="$(printf '%s\n\n%s' "$part" "$detail")"
     else
       msg="$(printf '%s' "$ALL_VIOLATIONS" | jq -r --arg r "$rule" \
-        '[.[] | select(.severity == "block" and .rule == $r) | .message] | join("\n\n")')"
+        '[.[] | select(.severity == "block" and .rule == $r) | .message + (if .detail then "\n\n" + .detail else "" end)] | join("\n\n")')"
       [[ -n "$marker_dir" ]] && : > "$marker_dir/block-${rule//[^A-Za-z0-9_-]/_}" 2>/dev/null
       part="[$rule] $msg"
     fi
@@ -214,7 +217,7 @@ if [[ "$BLOCK_COUNT" -gt 0 ]]; then
   # keep it short.
   printf '%s' "$ALL_VIOLATIONS" | jq -r '
     .[] | select(.severity == "block")
-    | "  • [\(.rule)] " + (.message | split("\n")[0])
+    | "  • [\(.rule)] " + ((.detail // .message) | split("\n")[0])
   ' >&2
   exit 2
 fi

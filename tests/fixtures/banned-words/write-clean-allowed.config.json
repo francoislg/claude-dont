@@ -1,0 +1,14 @@
+{
+  "banned-words": {
+    "rules": {
+      "no-banned-words": {
+        "words": [
+          {
+            "match": "secretcorp",
+            "suggest": "acme"
+          }
+        ]
+      }
+    }
+  }
+}
