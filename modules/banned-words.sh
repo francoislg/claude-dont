@@ -9,18 +9,18 @@ set -u
 
 INPUT="$(cat)"
 TOOL_NAME="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty')"
-FILE_PATH="$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')"
-
-RULE="$(printf '%s' "$INPUT" | jq -c '[._enabledRules[]? | select(.name == "no-banned-words")][0] // empty')"
-if [[ -z "$RULE" ]] || [[ "$(printf '%s' "$RULE" | jq '.config.words // [] | length')" -eq 0 ]]; then
-  jq -n '{violations: []}'
-  exit 0
-fi
 
 case "$TOOL_NAME" in
   Write|Edit|NotebookEdit|Bash) ;;
-  *) jq -n '{violations: []}'; exit 0 ;;
+  *) exit 0 ;;
 esac
+
+FILE_PATH="$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')"
+
+RULE="$(printf '%s' "$INPUT" | jq -c '[._enabledRules[]? | select(.name == "no-banned-words")][0] // empty')"
+if [[ -z "$RULE" ]]; then
+  exit 0
+fi
 
 EXISTING=""
 if [[ "$TOOL_NAME" == "Write" && -f "$FILE_PATH" ]]; then

@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/poller.test.ts",
+    "content": "it('polls', async () => {\n  await new Promise((resolve) => setTimeout(resolve, 100));\n  const id = setInterval(tick, 50);\n});\n"
+  }
+}

@@ -3,6 +3,7 @@
 # Rules: cd / path discipline + Bash antipatterns.
 #   no-absolute-cwd-paths
 #   no-find, no-awk, no-sed-i, no-sed-n, no-tsc-without-noemit, no-code-file-redirect
+#   no-destructive-git, no-pattern-kill
 
 set -u
 
@@ -144,6 +145,23 @@ fi
 
 if has_rule "no-find" && echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])find([[:space:]]|$)'; then
   add "no-find" "'find' is not allowed. Use the Glob tool for file pattern matching (e.g. '**/*.ts', 'src/**/*.tsx'). Glob is faster, respects gitignore, and returns sorted results."
+fi
+
+# ------------------------------------------------------------
+# no-pattern-kill — signal processes by exact PID only. pkill/killall match
+# by name or full command line (-f), so a short pattern can hit every app on
+# the machine; 'xargs kill' does the same from a pgrep/ps pipeline; 'kill -1',
+# 'kill 0' and negative PIDs target every process or a whole process group.
+# ------------------------------------------------------------
+if has_rule "no-pattern-kill"; then
+  kill_msg="Signal processes by exact PID only: 'kill <pid> [<pid>...]'. Get the PIDs first (e.g. 'lsof -ti :<port>', 'pgrep -fl <pattern>' to review the matches, or the PID of the process you started), check the list, then kill those PIDs. pkill/killall, 'xargs kill', 'kill -1', 'kill 0' and negative PIDs match far more than intended and can terminate unrelated apps and sessions."
+  if echo "$COMMAND" | grep -qE '(^|[[:space:]|&;(`])(pkill|killall)([[:space:]]|$)'; then
+    add "no-pattern-kill" "$kill_msg"
+  elif echo "$COMMAND" | grep -qE '(^|[[:space:]|&;])xargs([[:space:]]+-[^[:space:]]+)*[[:space:]]+kill([[:space:]]|$)'; then
+    add "no-pattern-kill" "$kill_msg"
+  elif echo "$COMMAND" | grep -qE '(^|[[:space:]|&;(`])kill([[:space:]]+-[A-Za-z0-9]+|[[:space:]]+-s[[:space:]]+[A-Za-z0-9]+)*[[:space:]]+(-1|0|--[[:space:]]+-?[0-9]+|-[0-9]+[[:space:]]|-[0-9]+$)'; then
+    add "no-pattern-kill" "$kill_msg"
+  fi
 fi
 
 # ------------------------------------------------------------

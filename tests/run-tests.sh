@@ -14,6 +14,10 @@
 # present, its contents are copied into <repo>/.test-cwd/ before the run
 # (simulating project files like package.json that rules may check for
 # project detection).
+#
+# Optional: <name>.user-config.json is staged as the sandboxed
+# ~/.claude/dont-config.json, and <name>.setup.sh runs inside <repo>/.test-cwd/
+# after the other files are staged.
 
 set -u
 
@@ -62,10 +66,24 @@ for input_path in "$FIXTURES_DIR"/*/*.input.json; do
     cp "$config_path" "$TEST_CWD/.claude/dont-config.json"
   fi
 
+  # Stage optional user-global config (~/.claude/dont-config.json)
+  rm -f "$TEST_HOME/.claude/dont-config.json"
+  user_config_path="$FIXTURES_DIR/$name.user-config.json"
+  if [[ -f "$user_config_path" ]]; then
+    cp "$user_config_path" "$TEST_HOME/.claude/dont-config.json"
+  fi
+
   # Stage optional project files (e.g. package.json for SvelteKit detection)
   files_dir="$FIXTURES_DIR/$name.files"
   if [[ -d "$files_dir" ]]; then
     cp -R "$files_dir/." "$TEST_CWD/"
+  fi
+
+  # Optional setup script, run inside the test cwd — for layouts git can't
+  # store in a fixture directory (e.g. nested .git dirs for worktree tests)
+  setup_path="$FIXTURES_DIR/$name.setup.sh"
+  if [[ -f "$setup_path" ]]; then
+    (cd "$TEST_CWD" && bash "$setup_path")
   fi
 
   # Run dont.sh with sandboxed HOME and CWD. Substitute the placeholder

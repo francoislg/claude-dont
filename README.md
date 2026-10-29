@@ -40,15 +40,16 @@ That's it. Defaults are now active.
 
 ## Configuration
 
-claude-dont merges three optional config layers (deepest wins):
+claude-dont merges four optional config layers (deepest wins):
 
-| Priority | Path                                       | Scope            |
-|----------|--------------------------------------------|------------------|
-| 1        | `<your-project>/.claude/dont-config.json`  | per-project      |
-| 2        | `~/.claude/dont-config.json`               | per-user global  |
-| 3        | `<repo>/dont-config.default.json`          | shipped defaults |
+| Priority | Path                                                    | Scope                        |
+|----------|---------------------------------------------------------|------------------------------|
+| 1        | `<your-project>/.claude/dont-config.json`               | per-project, in the repo     |
+| 2        | `~/.claude/dont-config.json` → `projects["<repo key>"]` | per-project, in your home    |
+| 3        | `~/.claude/dont-config.json`                            | per-user global              |
+| 4        | `<repo>/dont-config.default.json`                       | shipped defaults             |
 
-User configs only need to specify what they're overriding. Each rule value can be:
+User configs only need to specify what they're overriding. Arrays (like `banned-words` `words`) are replaced, not merged, by a deeper layer. Each rule value can be:
 
 - `true`  — enabled with default severity
 - `false` — disabled
@@ -74,6 +75,32 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 { "typescript": { "rules": { "no-as-any": { "severity": "nudge" } } } }
 ```
 
+### Per-project config outside the repo
+
+`~/.claude/dont-config.json` can hold per-project overrides under `projects`, keyed by the repo's git remote. Nothing is added to the repo, and every clone and worktree of that repo picks it up:
+
+```json
+{
+  "projects": {
+    "github.com/acme/widget": {
+      "globalTools": { "rules": { "no-find": false } }
+    }
+  }
+}
+```
+
+The repo key is the `origin` remote URL (or the first remote when there is no `origin`) without scheme, user, port, and `.git`: `git@github.com:acme/widget.git`, `https://github.com/acme/widget`, and `ssh://git@github.com:22/acme/widget.git` all become `github.com/acme/widget`. A repo with no remote has no key, so only the in-repo layer applies to it.
+
+### Subdirectories and worktrees
+
+claude-dont walks up from the session's working directory to the enclosing git repo, so a session started in a subdirectory still finds the repo's config. The in-repo layer is the nearest `.claude/dont-config.json` among, in order:
+
+1. the working directory
+2. the repo (or worktree) root
+3. inside a git worktree, the main checkout
+
+So a worktree without its own `.claude/dont-config.json` behaves like the main checkout, and the repo key always comes from the main repo's remote. Detection uses only bash builtins (no `git` call), and the merged result is cached per working directory.
+
 ## Rules
 
 ### `globalTools` — applies to `Bash` tool calls
@@ -88,6 +115,7 @@ Downgrade `no-as-any` from a block to a nudge in a legacy area:
 | `no-tsc-without-noemit` | bare `tsc` without `--noEmit` — would emit compiled files        | block             |
 | `no-code-file-redirect` | `> file.ts` (and similar) — use the `Write`/`Edit` tools         | block             |
 | `no-destructive-git`    | `git checkout .` / `git checkout src/` / `git checkout -- ...` / `git restore <path>` — suggests `git stash` | block |
+| `no-pattern-kill`       | `pkill` / `killall` / `xargs kill` / `kill -1` / `kill 0` / negative PIDs — kill exact PIDs only | block |
 
 ### `js-ts` — applies to `Edit` and `Write` on `.ts` / `.tsx` / `.js` / `.jsx` files
 
@@ -105,6 +133,7 @@ Cross-language patterns that are footguns in both TypeScript and JavaScript.
 | `no-oxlint-disable`       | `// oxlint-disable` / `/* oxlint-disable */` — fix the underlying lint issue | block |
 | `no-void-expr`            | `void (...)` and `void fn()` — discards promises/expressions; await or `.catch()` instead | block |
 | `no-empty-catch`          | `.catch(() => {})` with an empty body — silently swallows a promise rejection; log, rethrow, or handle it | block |
+| `no-test-timers`          | `setTimeout(` / `setInterval(` in a test file (`*.test.*`, `*.spec.*`, `__tests__/`) — use fake timers (`jest.useFakeTimers()` / `vi.useFakeTimers()` + `advanceTimersByTime`) instead of real waits | block |
 | `no-large-file`           | `Write.content` / `Edit.new_string` over `maxLines` (default 500) — force splitting | block |
 | `nudge-unknown-type`      | `: unknown` and JSDoc `@... {unknown}` — suggests a more specific type (excluding `catch`) | nudge |
 | `nudge-skipped-test`      | `describe.skip(` / `test.skip(` / `it.skip(` / `xdescribe(` / `xit(` / `xtest(` — fix or delete instead | nudge |
@@ -126,6 +155,7 @@ TypeScript-specific syntax patterns. Will not fire on `.js`/`.jsx` files.
 | `no-as-array`             | `as Array<...>`                                      | block             |
 | `no-as-object`            | `as object` / `as {}` / `as Object` — too-loose cast | block             |
 | `no-as-function`          | `as Function`                                        | block             |
+| `no-as-inline-type`       | `x as { a: string }`, single- or multi-line inline object type cast | block |
 | `no-record-loose`         | `Record<string, any>`, `Record<string, unknown>`     | block             |
 | `no-loose-index-signature`| `[k: string]: any` / `[k: string]: unknown` index signatures | block       |
 | `no-generic-any-unknown`  | `Promise<any>`, `Map<string, unknown>`, etc.         | block             |
@@ -189,7 +219,7 @@ Matching is case-insensitive substring. `Edit`/`Write` block only on occurrences
 }
 ```
 
-`words` arrays don't merge across layers — the deepest layer's list replaces the others. To keep a per-project list out of version control, add `.claude/dont-config.json` to that repo's `.git/info/exclude`.
+For a per-project list that stays out of the repo, put it under `projects["<repo key>"]` in `~/.claude/dont-config.json` (see [Per-project config outside the repo](#per-project-config-outside-the-repo)). Repos without any listed words skip the module entirely.
 
 ## Block vs. nudge
 
@@ -206,7 +236,7 @@ Nudges are deduped per session: a rule's full guidance is injected the first tim
 bash tests/run-tests.sh
 ```
 
-Each fixture lives under `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) and is a triple: `<name>.input.json` (the hook payload), optional `<name>.config.json` (project-level override staged as `<test>/.claude/dont-config.json`), and `<name>.expect.json` with assertions on exit code, stdout, and stderr. A `<name>.files/` directory, if present, is copied into the test cwd before the run (used for things like staging a `package.json` so project-detection rules trigger). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
+Each fixture lives under `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) and is a triple: `<name>.input.json` (the hook payload), optional `<name>.config.json` (project-level override staged as `<test>/.claude/dont-config.json`), and `<name>.expect.json` with assertions on exit code, stdout, and stderr. Other optional files: `<name>.user-config.json` (staged as the sandboxed `~/.claude/dont-config.json`), a `<name>.files/` directory copied into the test cwd (e.g. a `package.json` so project-detection rules trigger), and `<name>.setup.sh`, run inside the test cwd for layouts git can't store in a fixture directory (nested `.git` dirs for worktree tests). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
 
 ## Contributing
 

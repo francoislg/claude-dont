@@ -1,0 +1,5 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["no-pattern-kill", "BLOCKED"],
+  "stderrContains": ["claude-dont: blocked"]
+}

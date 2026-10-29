@@ -1,0 +1,4 @@
+{
+  "exitCode": 2,
+  "stdoutContains": ["BLOCKED", "no-test-timers", "useFakeTimers", "setInterval(tick"]
+}

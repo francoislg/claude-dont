@@ -29,13 +29,14 @@ Guidance for Claude Code when working in this repository.
 
 5. **Never block on internal errors.** A bug in claude-dont must never prevent the user's tool call from running. Use `exit 0` on internal failure, log a clear `claude-dont:` message to stderr.
 
-6. **Tests are mandatory.** Every new rule needs at least two fixtures: one that triggers it and one similar-but-clean input that does not. Fixtures live in `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) as `<name>.input.json` / `<name>.expect.json` (and optional `<name>.config.json`, `<name>.files/` for staged project files). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
+6. **Tests are mandatory.** Every new rule needs at least two fixtures: one that triggers it and one similar-but-clean input that does not. Fixtures live in `tests/fixtures/<module>/` (e.g. `tests/fixtures/typescript/`) as `<name>.input.json` / `<name>.expect.json` (and optional `<name>.config.json`, `<name>.user-config.json` for the sandboxed `~/.claude/dont-config.json`, `<name>.files/` for staged project files, `<name>.setup.sh` for layouts git can't store such as nested `.git` dirs). Cross-cutting dispatcher/config-loader tests live in `tests/fixtures/dispatcher/`.
 
 ## Architecture
 
 ```
 dont.sh                        # entry point
-lib/load-config.sh             # 3-layer config merge + rule-value normalization
+lib/resolve-repo.sh            # sourced by dont.sh: enclosing repo, worktree → main checkout, remote key, project config path (bash builtins only — keep it fork-free, it runs on every call)
+lib/load-config.sh             # 4-layer config merge (defaults, user, user.projects[repo key], project) + rule-value normalization
 modules/
   globalTools.sh               # rules in the `globalTools` config category (Bash)
   js-ts.sh                     # `js-ts` category (.ts/.tsx/.js/.jsx)

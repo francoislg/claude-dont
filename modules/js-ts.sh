@@ -151,6 +151,15 @@ run_rule "no-void-expr"           "regex" '(^|[^A-Za-z0-9_$])void([[:space:]]*\(
 run_rule "no-empty-catch"         "regex" '\.catch\([[:space:]]*((async[[:space:]]+)?(\([^)]*\)|[A-Za-z_$][A-Za-z0-9_$]*)[[:space:]]*=>|function[[:space:]]*[A-Za-z0-9_]*[[:space:]]*\([^)]*\))[[:space:]]*\{[[:space:]]*\}' \
   "An empty '.catch(() => {})' handler is not allowed — it silently swallows the promise rejection, so a failure disappears with no log, no rethrow, and no recovery. Handle the error: log it ('.catch((err) => logError(err))'), rethrow after cleanup, or convert it into a value the caller can act on. If the rejection is genuinely expected and safe to ignore, say so explicitly with a comment explaining why and still reference the error (e.g. '.catch((err) => { /* offline is fine here — see TICKET-123 */ })') rather than dropping it into a void body."
 
+# no-test-timers — real 'setTimeout(' / 'setInterval(' calls in a test file make
+# the suite slow and flaky. Only test files are checked ('*.test.*', '*.spec.*',
+# or anything under '__tests__/'). The string form ('spyOn(global, "setTimeout")')
+# and 'clearTimeout(' are not matched.
+if [[ "$FILE_PATH" =~ \.(test|spec)\.(ts|tsx|js|jsx)$ || "$FILE_PATH" == */__tests__/* ]]; then
+  run_rule "no-test-timers"       "regex" '\bset(Timeout|Interval)[[:space:]]*\(' \
+    "'setTimeout' / 'setInterval' is not allowed in a test file. Real timers make tests slow and flaky. Use mock timers instead: call 'jest.useFakeTimers()' (or 'vi.useFakeTimers()') and move time with 'jest.advanceTimersByTime(ms)', 'jest.runOnlyPendingTimers()' or 'jest.runAllTimers()' (the async variants, e.g. 'advanceTimersByTimeAsync', when promises are involved), then restore with 'jest.useRealTimers()'. To wait for async UI or state, use 'waitFor' / 'findBy*' or await the promise itself instead of sleeping."
+fi
+
 # eslint-disable comments — almost always suppressing a real issue. Fix the
 # underlying lint violation instead of silencing the rule.
 run_rule "no-eslint-disable"      "regex" 'eslint-disable' \

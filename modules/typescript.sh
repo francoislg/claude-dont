@@ -125,7 +125,14 @@ run_rule "no-as-array"            "fixed" "as Array<" \
 run_rule "no-as-object"           "regex" '\bas[[:space:]]+(object\b|\{[[:space:]]*\}|Object\b)' \
   "Casting with 'as object', 'as {}' or 'as Object' is not allowed (e.g. '{ x: 1 } as object'). The 'object' / '{}' / 'Object' types are essentially untyped — you lose all property knowledge. Use a real interface or type alias for the shape, or 'satisfies' for literal validation. If you're trying to widen for a third-party API, declare the actual expected shape."
 
-run_rule "no-record-loose"        "regex" 'Record<string,\s*(unknown|any)>' \
+# 'x as { a: string }' — casting to an inline object type. Matches the line
+# holding 'as {', so a type body spread over the following lines is caught too.
+# 'as {}' is left to no-as-object.
+run_rule "no-as-inline-type"      "regex" '\bas[[:space:]]+\{' \
+  "Casting to an inline object type ('x as { a: string }', on one line or spread over several) is not allowed. It asserts a shape with no runtime check, the same as 'fn() as Foo', and hides the shape in an anonymous type. Fix the source type, narrow with a type guard, or validate with a schema. For a literal, use 'satisfies' or an annotated 'const val: Foo = {...}' with a named type. $GUARD_HINT" \
+  '\bas[[:space:]]+\{[[:space:]]*\}'
+
+run_rule "no-record-loose"       "regex" 'Record<string,\s*(unknown|any)>' \
   "'Record<string, unknown/any>' is not allowed. Define a proper type or interface with the actual known keys instead of using a loose Record. If the keys are truly dynamic, use a Map or a typed index signature with a real value type: { [key: string]: SpecificType }."
 
 # Index signatures with 'any' or 'unknown' values — '[k: string]: unknown',

@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "github.com/acme/widget": {
+      "banned-words": {
+        "rules": {
+          "no-banned-words": {
+            "words": [
+              "secretcorp"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

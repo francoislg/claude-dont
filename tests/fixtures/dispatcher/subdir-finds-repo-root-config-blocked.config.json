@@ -1,0 +1,11 @@
+{
+  "banned-words": {
+    "rules": {
+      "no-banned-words": {
+        "words": [
+          "secretcorp"
+        ]
+      }
+    }
+  }
+}

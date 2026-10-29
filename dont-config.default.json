@@ -10,7 +10,8 @@
       "no-sed-n":               { "enabled": true, "severity": "block" },
       "no-tsc-without-noemit":  { "enabled": true, "severity": "block" },
       "no-code-file-redirect":  { "enabled": true, "severity": "block" },
-      "no-destructive-git":     { "enabled": true, "severity": "block" }
+      "no-destructive-git":     { "enabled": true, "severity": "block" },
+      "no-pattern-kill":        { "enabled": true, "severity": "block" }
     }
   },
   "js-ts": {
@@ -26,6 +27,7 @@
       "no-oxlint-disable":      { "enabled": true, "severity": "block" },
       "no-void-expr":           { "enabled": true, "severity": "block" },
       "no-empty-catch":         { "enabled": true, "severity": "block" },
+      "no-test-timers":         { "enabled": true, "severity": "block" },
       "no-large-file":          { "enabled": true, "severity": "block", "maxLines": 500 },
       "nudge-unknown-type":     { "enabled": true, "severity": "nudge" },
       "nudge-skipped-test":     { "enabled": true, "severity": "nudge" },
@@ -45,6 +47,7 @@
       "no-as-array":            { "enabled": true, "severity": "block" },
       "no-as-object":           { "enabled": true, "severity": "block" },
       "no-as-function":         { "enabled": true, "severity": "block" },
+      "no-as-inline-type":      { "enabled": true, "severity": "block" },
       "no-record-loose":        { "enabled": true, "severity": "block" },
       "no-loose-index-signature":{ "enabled": true, "severity": "block" },
       "no-generic-any-unknown": { "enabled": true, "severity": "block" },

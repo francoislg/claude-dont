@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "cwd": "__CLAUDE_DONT_TEST_CWD__",
+  "tool_input": {
+    "file_path": "__CLAUDE_DONT_TEST_CWD__/src/__tests__/helpers.js",
+    "old_string": "await flush();\n",
+    "new_string": "await new Promise((resolve) => window.setTimeout(resolve, 10));\n"
+  }
+}

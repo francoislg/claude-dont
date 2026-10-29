@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Loads and merges claude-dont config from up to three layers (deepest wins):
-#   1. <cwd>/.claude/dont-config.json        (per-project)
-#   2. ~/.claude/dont-config.json            (per-user global)
-#   3. <repo>/dont-config.default.json       (shipped defaults)
+#   1. <project>/.claude/dont-config.json    (per-project; $DONT_PROJECT_CFG)
+#   2. ~/.claude/dont-config.json .projects["<repo key>"]
+#                                            (per-project, user-owned; $DONT_REPO_KEY)
+#   3. ~/.claude/dont-config.json            (per-user global)
+#   4. <repo>/dont-config.default.json       (shipped defaults)
 #
 # Then normalizes every rule entry into canonical object form:
 #   true       -> { "enabled": true }
@@ -24,7 +26,8 @@ DONT_HOME="${DONT_HOME:-$HOME}"
 
 DEFAULTS="$DONT_REPO_DIR/dont-config.default.json"
 USER_GLOBAL="$DONT_HOME/.claude/dont-config.json"
-PROJECT="$DONT_CWD/.claude/dont-config.json"
+PROJECT="${DONT_PROJECT_CFG:-$DONT_CWD/.claude/dont-config.json}"
+REPO_KEY="${DONT_REPO_KEY:-}"
 
 # Returns valid JSON for the path, or "{}" if missing/malformed (with a warning).
 read_layer() {
@@ -51,7 +54,9 @@ MERGED="$(jq -n \
   --argjson d "$DEFAULTS_JSON" \
   --argjson u "$USER_GLOBAL_JSON" \
   --argjson p "$PROJECT_JSON" \
-  '$d * $u * $p')"
+  --arg key "$REPO_KEY" \
+  '(if $key == "" then {} else ($u.projects[$key] // {}) end) as $up
+   | ($d * ($u | del(.projects)) * $up * ($p | del(.projects)))')"
 
 # Normalize every rule value: true/false/object -> canonical object.
 # Walks .[<category>].rules.[<rule>] and rewrites scalar booleans into objects,

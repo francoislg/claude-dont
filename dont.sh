@@ -31,7 +31,8 @@ fi
 
 # 3. Build (or reuse cached) TSV of enabled categories+rules.
 #    Cache key: sanitized cwd path. Invalidate if any config source or core
-#    script is newer than the cache file. This avoids 5+ jq passes per hook
+#    script is newer than the cache file, or if the resolved project config
+#    path / repo key (stored as the cache's first line) changed. This avoids 5+ jq passes per hook
 #    call when the config hasn't changed.
 TMPDIR_DONT="${TMPDIR:-/tmp}"
 export DONT_CWD="${CWD:-$PWD}"
@@ -41,9 +42,14 @@ CACHE_DIR="${TMPDIR_DONT%/}/claude-dont-cache"
 mkdir -p "$CACHE_DIR" 2>/dev/null
 cwd_safe="$(printf '%s' "$DONT_CWD" | tr -c 'a-zA-Z0-9' '_')"
 
+source "$DONT_DIR/lib/resolve-repo.sh"
+dont_resolve_repo
+export DONT_REPO_KEY DONT_PROJECT_CFG
+
 default_cfg="$DONT_DIR/dont-config.default.json"
 user_cfg="$HOME/.claude/dont-config.json"
-proj_cfg="$DONT_CWD/.claude/dont-config.json"
+proj_cfg="$DONT_PROJECT_CFG"
+cache_header="# ${proj_cfg}	${DONT_REPO_KEY}"
 
 # Cache key includes whether each optional layer exists, so deleting or
 # creating a config layer naturally routes to a different cache slot.
@@ -73,6 +79,10 @@ if [[ -f "$GROUPS_FILE" && "$force_rebuild" -eq 0 ]]; then
   [[ "$user_exists" -eq 1 && ! ("$GROUPS_FILE" -nt "$user_cfg") ]] && need_rebuild=1
   [[ ! ("$GROUPS_FILE" -nt "$DONT_DIR/lib/load-config.sh") ]] && need_rebuild=1
   [[ ! ("$GROUPS_FILE" -nt "$DONT_DIR/dont.sh") ]] && need_rebuild=1
+  [[ ! ("$GROUPS_FILE" -nt "$DONT_DIR/lib/resolve-repo.sh") ]] && need_rebuild=1
+  cached_header=""
+  IFS= read -r cached_header < "$GROUPS_FILE"
+  [[ "$cached_header" != "$cache_header" ]] && need_rebuild=1
 fi
 
 if [[ $need_rebuild -eq 1 ]]; then
@@ -82,6 +92,7 @@ if [[ $need_rebuild -eq 1 ]]; then
 
   # Build TSV (one line per category): category \t rules-json-array.
   # Modules self-filter on tool_name — the dispatcher does no tool routing.
+  printf '%s\n' "$cache_header" > "$GROUPS_FILE"
   jq -r '
     to_entries
     | map(select(.value | type == "object" and .enabled != false and has("rules")))
@@ -93,6 +104,7 @@ if [[ $need_rebuild -eq 1 ]]; then
               .value.rules
               | to_entries
               | map(select(.value.enabled == true))
+              | map(select((.value | has("words") | not) or (.value.words | length > 0)))
               | map({
                   name: .key,
                   severity: (.value.severity // "block"),
@@ -105,7 +117,7 @@ if [[ $need_rebuild -eq 1 ]]; then
     | map(select(.rules | length > 0))
     | .[]
     | "\(.category)\t\(.rules | tostring)"
-  ' "$CONFIG_FILE" > "$GROUPS_FILE"
+  ' "$CONFIG_FILE" >> "$GROUPS_FILE"
 
   rm -f "$CONFIG_FILE"
 fi
@@ -118,7 +130,7 @@ fi
 ALL_VIOLATIONS='[]'
 
 while IFS=$'\t' read -r category rules_json; do
-  [[ -z "$category" ]] && continue
+  [[ -z "$category" || "$category" == '#'* ]] && continue
 
   module_path="$DONT_DIR/modules/$category.sh"
   if [[ ! -f "$module_path" ]]; then

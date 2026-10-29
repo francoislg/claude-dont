@@ -1,0 +1,4 @@
+{
+  "exitCode": 0,
+  "stdoutNotContains": ["no-as-inline-type", "BLOCKED"]
+}
